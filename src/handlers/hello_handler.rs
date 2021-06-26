@@ -1,4 +1,4 @@
-use log::info;
+use tracing::info;
 use warp;
 
 pub async fn hello_prime(name: String) -> Result<impl warp::Reply, warp::Rejection> {
