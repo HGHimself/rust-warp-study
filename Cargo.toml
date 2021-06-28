@@ -10,5 +10,7 @@ env_logger = "0.8.4"
 log = "0.4.14"
 tokio = { version = "1", features = ["full"]  }
 tracing = "0.1.26"
+tracing-bunyan-formatter = "0.2.4"
+tracing-log = "0.1.2"
 tracing-subscriber = "0.2.19"
 warp = "0.3.1"
