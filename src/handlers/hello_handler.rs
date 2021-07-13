@@ -6,7 +6,7 @@ use warp::{reject, Filter, Rejection, Reply};
 use warp;
 use warp::http::StatusCode;
 
-pub async fn hello(name: String) -> Result<impl warp::Reply, warp::Rejection> {
+pub async fn hello(name: u64) -> Result<impl warp::Reply, warp::Rejection> {
     info!("Received hello request for name: {}", name);
     let reply = format!("Hello, {}!", name);
     println!("{}", &reply);
