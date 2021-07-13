@@ -1,3 +1,3 @@
-pub fn go_crazy() {
-    panic!("AHHHH!!!!");
+pub fn go_crazy() -> Result<(),String> {
+    Err(String::from("AHHHH!"))
 }
