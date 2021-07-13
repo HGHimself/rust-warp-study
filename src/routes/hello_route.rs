@@ -1,5 +1,5 @@
-use warp::{filters::BoxedFilter, Filter, reject, Rejection};
 use crate::NotEven;
+use warp::{filters::BoxedFilter, reject, Filter, Rejection};
 
 // 1. "hello"
 fn path_prefix() -> BoxedFilter<()> {

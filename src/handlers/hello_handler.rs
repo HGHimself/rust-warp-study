@@ -1,10 +1,10 @@
-use crate::{ErrorMessage,services::hello_service};
-use log::{error,info};
+use crate::{services::hello_service, ErrorMessage};
+use log::{error, info};
 use std::convert::Infallible;
 use std::error::Error;
-use warp::{reject, Filter, Rejection, Reply};
 use warp;
 use warp::http::StatusCode;
+use warp::{reject, Filter, Rejection, Reply};
 
 pub async fn hello(name: u64) -> Result<impl warp::Reply, warp::Rejection> {
     info!("Received hello request for name: {}", name);
