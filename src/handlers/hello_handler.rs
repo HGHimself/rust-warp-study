@@ -1,85 +1,37 @@
-use crate::{services::hello_service, ErrorMessage};
-use log::{error, info};
-use std::convert::Infallible;
-use std::error::Error;
-use warp;
-use warp::http::StatusCode;
-use warp::{reject, Filter, Rejection, Reply};
+use crate::{Config, ErrorMessage, NotEven, TesterJson};
+use log::info;
+use std::sync::Arc;
+use warp::{http::StatusCode, Rejection};
 
-pub async fn hello(name: u64) -> Result<impl warp::Reply, warp::Rejection> {
+pub async fn hello(name: u64, config: Arc<Config>) -> Result<impl warp::Reply, warp::Rejection> {
     info!("Received hello request for name: {}", name);
-    let reply = format!("Hello, {}!", name);
+    let reply = format!("Hello, {}!", name * config.num);
     println!("{}", &reply);
     Ok(warp::reply::html(reply))
 }
 
-pub async fn hello_panic(name: u64) -> Result<impl warp::Reply, warp::Rejection> {
-    info!("Received hello request for name: {}", name);
-    let message;
-    let code;
-    match hello_service::go_crazy() {
-        Err(e) => {
-            code = StatusCode::BAD_REQUEST;
-            error!("Erroring: {}", name);
-            let json = warp::reply::json(&ErrorMessage {
-                code: code.as_u16(),
-                message: e.into(),
-            });
-
-            Ok(warp::reply::with_status(json, code))
-        }
-        Ok(_) => {
-            code = StatusCode::OK;
-            message = "Hello, {}!";
-            let json = warp::reply::json(&ErrorMessage {
-                code: code.as_u16(),
-                message: message.into(),
-            });
-
-            Ok(warp::reply::with_status(json, code))
-        }
-    }
+pub async fn hello_post(tester: TesterJson) -> Result<impl warp::Reply, warp::Rejection> {
+    info!("Received hello post request for name: {:?}", tester);
+    let reply = format!("Hello, {}!", tester.testing);
+    println!("{}", &reply);
+    Ok(warp::reply::html(reply))
 }
 
-// This function receives a `Rejection` and tries to return a custom
-// value, otherwise simply passes the rejection along.
-pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
+pub async fn hello_rejection(err: Rejection) -> Result<impl warp::Reply, warp::Rejection> {
     let code;
     let message;
 
-    if err.is_not_found() {
-        code = StatusCode::NOT_FOUND;
-        message = "NOT_FOUND";
-    } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
-        // This error happens if the body could not be deserialized correctly
-        // We can use the cause to analyze the error and customize the error message
-        message = match e.source() {
-            Some(cause) => {
-                if cause.to_string().contains("denom") {
-                    "FIELD_ERROR: denom"
-                } else {
-                    "BAD_REQUEST"
-                }
-            }
-            None => "BAD_REQUEST",
-        };
+    if let Some(NotEven) = err.find() {
+        message = String::from("NOT_EVEN");
         code = StatusCode::BAD_REQUEST;
-    } else if let Some(_) = err.find::<warp::reject::MethodNotAllowed>() {
-        // We can handle a specific error, here METHOD_NOT_ALLOWED,
-        // and render it however we want
-        code = StatusCode::METHOD_NOT_ALLOWED;
-        message = "METHOD_NOT_ALLOWED";
+
+        let json = warp::reply::json(&ErrorMessage {
+            code: code.as_u16(),
+            message: message,
+        });
+
+        Ok(warp::reply::with_status(json, code))
     } else {
-        // We should have expected this... Just log and say its a 500
-        eprintln!("unhandled rejection: {:?}", err);
-        code = StatusCode::INTERNAL_SERVER_ERROR;
-        message = "UNHANDLED_REJECTION";
+        Err(err)
     }
-
-    let json = warp::reply::json(&ErrorMessage {
-        code: code.as_u16(),
-        message: message.into(),
-    });
-
-    Ok(warp::reply::with_status(json, code))
 }
