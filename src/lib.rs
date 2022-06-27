@@ -1,7 +1,6 @@
 pub mod handlers;
 pub mod routes;
 pub mod services;
-pub mod telemetry;
 
 use log::error;
 use serde_derive::{Deserialize, Serialize};
