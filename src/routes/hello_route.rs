@@ -1,10 +1,17 @@
 use crate::{with_config, Config, NotEven, TesterJson};
 use std::sync::Arc;
-use warp::{filters::BoxedFilter, reject, Filter, Rejection};
+use warp::{filters::BoxedFilter, reject, Filter};
 
 // 1. "hello"
 fn path_prefix() -> BoxedFilter<()> {
     warp::path("hello").boxed()
+}
+
+pub fn sleepy() -> BoxedFilter<(u64,)> {
+    warp::get()
+        .and(warp::path("sleepy"))
+        .and(warp::path::param::<u64>())
+        .boxed()
 }
 
 pub fn hello() -> BoxedFilter<(u64, Arc<Config>)> {

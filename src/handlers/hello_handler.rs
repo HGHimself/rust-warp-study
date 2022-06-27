@@ -1,6 +1,6 @@
 use crate::{Config, ErrorMessage, NotEven, TesterJson};
 use log::info;
-use std::sync::Arc;
+use std::{convert::Infallible, str::FromStr, sync::Arc, time::Duration};
 use warp::{http::StatusCode, Rejection};
 
 pub async fn hello(name: u64, config: Arc<Config>) -> Result<impl warp::Reply, warp::Rejection> {
@@ -34,4 +34,9 @@ pub async fn hello_rejection(err: Rejection) -> Result<impl warp::Reply, warp::R
     } else {
         Err(err)
     }
+}
+
+pub async fn sleepy(seconds: u64) -> Result<impl warp::Reply, Infallible> {
+    tokio::time::sleep(Duration::from_secs(seconds)).await;
+    Ok(format!("I waited {} seconds!", seconds))
 }

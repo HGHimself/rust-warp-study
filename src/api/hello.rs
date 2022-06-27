@@ -6,5 +6,6 @@ macro_rules! hello {
             .or(hello_route::hello()
                 .and_then(hello_handler::hello)
                 .recover(hello_handler::hello_rejection))
+            .or(hello_route::sleepy().and_then(hello_handler::sleepy))
     };
 }
