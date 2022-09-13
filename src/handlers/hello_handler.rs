@@ -1,6 +1,6 @@
 use crate::{Config, ErrorMessage, NotEven, TesterJson};
 use log::info;
-use std::{convert::Infallible, str::FromStr, sync::Arc, time::Duration};
+use std::{convert::Infallible, sync::Arc, time::Duration};
 use warp::{http::StatusCode, Rejection};
 
 pub async fn hello(name: u64, config: Arc<Config>) -> Result<impl warp::Reply, warp::Rejection> {

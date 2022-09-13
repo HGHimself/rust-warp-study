@@ -2,7 +2,6 @@ use crate::{with_config, Config, NotEven, TesterJson};
 use std::sync::Arc;
 use warp::{filters::BoxedFilter, reject, Filter};
 
-// 1. "hello"
 fn path_prefix() -> BoxedFilter<()> {
     warp::path("hello").boxed()
 }
