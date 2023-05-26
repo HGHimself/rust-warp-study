@@ -1,8 +1,11 @@
+pub mod api;
 pub mod config;
 pub mod handlers;
 pub mod routes;
+pub mod server;
 pub mod services;
 
+use crate::services::webauthn::Webauthn;
 use log::error;
 use serde_derive::{Deserialize, Serialize};
 use std::convert::Infallible;
@@ -34,6 +37,10 @@ pub struct Config {
 
 pub fn with_config(config: Arc<Config>) -> warp::filters::BoxedFilter<(Arc<Config>,)> {
     warp::any().map(move || config.clone()).boxed()
+}
+
+pub fn with_webauthn(webauthn: Arc<Webauthn>) -> warp::filters::BoxedFilter<(Arc<Webauthn>,)> {
+    warp::any().map(move || webauthn.clone()).boxed()
 }
 
 // This function receives a `Rejection` and tries to return a custom
