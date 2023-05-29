@@ -11,8 +11,11 @@ use serde_derive::{Deserialize, Serialize};
 use std::convert::Infallible;
 use std::error::Error;
 use std::sync::Arc;
-use warp::http::StatusCode;
-use warp::{reject, Filter, Rejection, Reply};
+use warp::{
+    host::Authority,
+    http::{HeaderValue, StatusCode},
+    reject, Filter, Rejection, Reply,
+};
 
 /// An API error serializable to JSON.
 #[derive(Serialize)]
@@ -41,6 +44,34 @@ pub fn with_config(config: Arc<Config>) -> warp::filters::BoxedFilter<(Arc<Confi
 
 pub fn with_webauthn(webauthn: Arc<Webauthn>) -> warp::filters::BoxedFilter<(Arc<Webauthn>,)> {
     warp::any().map(move || webauthn.clone()).boxed()
+}
+
+pub async fn is_static(subdomain: Arc<Vec<String>>) -> Result<(), warp::Rejection> {
+    log::info!("{:?}", subdomain);
+    if subdomain.len() > 0 && subdomain[0] == "www" {
+        Ok(())
+    } else {
+        Err(warp::reject())
+    }
+}
+
+pub fn with_subdomain() -> warp::filters::BoxedFilter<(Arc<Vec<String>>,)> {
+    warp::header::value("host")
+        .map(move |value: HeaderValue| {
+            // convert HeaderValue to String and split port if provided
+            let splv: Vec<&str> = value.to_str().unwrap().split(":").collect();
+
+            // split hostname
+            let splv_2: Vec<String> = splv
+                .first()
+                .unwrap()
+                .split(".")
+                .map(|s: &str| String::from(s))
+                .collect();
+
+            Arc::<Vec<String>>::new(splv_2).clone()
+        })
+        .boxed()
 }
 
 // This function receives a `Rejection` and tries to return a custom

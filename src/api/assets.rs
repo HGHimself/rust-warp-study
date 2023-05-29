@@ -1,6 +1,6 @@
 macro_rules! assets {
     () => {
-        routes::assets::get_static()
+        routes::assets::get_static().with(warp::trace::named("assets"))
     };
 }
 
