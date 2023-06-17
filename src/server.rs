@@ -28,9 +28,12 @@ use std::{
     sync::Arc,
     time::Duration,
 };
-use tokio::sync::Semaphore;
+use tokio::{sync::Semaphore, time::timeout};
 use tower::{limit::GlobalConcurrencyLimitLayer, make::Shared, ServiceBuilder};
 use warp::Filter;
+
+const CONN_TIMEOUT: u64 = 2 * 60;
+const REQ_TIMEOUT: u64 = 2 * 60;
 
 pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), warp::hyper::Error> {
     let conns_limit = Arc::new(Semaphore::new(config.clone().max_conn));
@@ -38,33 +41,37 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
 
     let state = State::new(config.clone());
 
+    let options = warp::options().map(|| warp::reply()).map(|reply| {
+        warp::reply::with_header(reply, "Access-Control-Allow-Headers", "Content-Type")
+    });
+
+    let end = options
+        .or(assets!()
+            .or(hello!())
+            .map(|reply| warp::reply::with_header(reply, "Access-Control-Allow-Origin", "*")))
+        .recover(handle_rejection);
+
     let app = make_service_fn(move |_stream: &AddrStream| {
         let conns_limit = conns_limit.clone();
         let reqs_limit = reqs_limit.clone();
 
         let state = state.clone();
+        let end = end.clone();
 
         async move {
-            log::info!("Grabbing permit");
-            let permit = Arc::new(conns_limit.acquire_owned().await.unwrap());
-            log::info!("Got the permit");
-
-            let options = warp::options().map(|| warp::reply()).map(|reply| {
-                warp::reply::with_header(reply, "Access-Control-Allow-Headers", "Content-Type")
-            });
-
-            let end = options
-                .or(assets!().or(hello!()).map(|reply| {
-                    warp::reply::with_header(reply, "Access-Control-Allow-Origin", "*")
-                }))
-                .recover(handle_rejection);
-
-            let service = warp::service(end);
+            let future_permit = conns_limit.acquire_owned();
+            let conn_timeout = Duration::from_secs(CONN_TIMEOUT);
+            let expected_permit = timeout(conn_timeout, future_permit)
+                .await
+                .unwrap()
+                .unwrap();
+            let permit = Arc::new(
+                expected_permit
+            );
 
             Ok::<_, Infallible>(
                 ServiceBuilder::new()
                     .layer(reqs_limit)
-                    // Add high level tracing/logging to all requests
                     .layer(
                         TraceLayer::new_for_http()
                             .on_body_chunk(|chunk: &Bytes, latency: Duration, _: &tracing::Span| {
@@ -74,7 +81,7 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
                             .on_response(DefaultOnResponse::new().include_headers(true).latency_unit(LatencyUnit::Micros)),
                     )
                     // Set a timeout
-                    .timeout(Duration::from_secs(10))
+                    .timeout(Duration::from_secs(REQ_TIMEOUT))
                     // Share the state with each handler via a request extension
                     .layer(AddExtensionLayer::new(state))
                     // Compress responses
@@ -86,10 +93,9 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
                     ]))
                     .then(move |res: Result<Response<Body>, Infallible>| {
                         drop(permit);
-                        log::info!("releasing the permit");
                         std::future::ready(res)
                     })
-                    .service(service),
+                    .service(warp::service(end)),
             )
         }
     });

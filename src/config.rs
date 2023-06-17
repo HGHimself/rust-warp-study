@@ -4,10 +4,10 @@ use std::env;
 
 // how many requests we will allow to process at once
 // all others wait their turn
-const MAX_INFLIGHT_REQUESTS: usize = 1;
+const MAX_INFLIGHT_REQUESTS: usize = 100;
 // how many connections can be open an running at one time
 // the rest wait until a permit opens up
-const MAX_CONNS: usize = 1;
+const MAX_CONNS: usize = 100;
 
 #[derive(Clone)]
 pub struct Config {
