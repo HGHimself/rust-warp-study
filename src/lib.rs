@@ -1,11 +1,19 @@
 pub mod api;
 pub mod config;
+pub mod db_conn;
 pub mod handlers;
+pub mod models;
 pub mod routes;
+pub mod schema;
 pub mod server;
 pub mod services;
+pub mod utils;
+pub mod views;
 
-use crate::services::webauthn::Webauthn;
+#[macro_use]
+extern crate diesel;
+
+use crate::server::Context;
 use log::error;
 use serde_derive::{Deserialize, Serialize};
 use std::convert::Infallible;
@@ -27,23 +35,6 @@ pub struct ErrorMessage {
 #[derive(Deserialize, Debug)]
 pub struct TesterJson {
     testing: u16,
-}
-
-#[derive(Debug)]
-pub struct NotEven;
-impl reject::Reject for NotEven {}
-
-#[derive(Clone)]
-pub struct Config {
-    num: u64,
-}
-
-pub fn with_config(config: Arc<Config>) -> warp::filters::BoxedFilter<(Arc<Config>,)> {
-    warp::any().map(move || config.clone()).boxed()
-}
-
-pub fn with_webauthn(webauthn: Arc<Webauthn>) -> warp::filters::BoxedFilter<(Arc<Webauthn>,)> {
-    warp::any().map(move || webauthn.clone()).boxed()
 }
 
 pub async fn is_static(subdomain: Arc<Vec<String>>) -> Result<(), warp::Rejection> {

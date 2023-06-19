@@ -17,3 +17,7 @@ body {
   color: #0033ff;
   /* cursor: url('https://fav.farm/👆?svg') 12 0, auto; */
 }
+
+.flex {
+  display: flex;
+}

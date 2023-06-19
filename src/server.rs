@@ -1,13 +1,15 @@
 use crate::{
-    api::{assets::assets, hello::hello},
-    handle_rejection, is_static,
-    {config::Config, handlers, routes},
+    api::{assets::assets, hello::hello, user::user},
+    config::{generate_config, Config},
+    db_conn::DbConn,
+    handle_rejection, handlers, is_static, routes,
 };
 
 use bytes::Bytes;
 use tower_http::{
     add_extension::AddExtensionLayer,
     compression::CompressionLayer,
+    limit::RequestBodyLimitLayer,
     sensitive_headers::SetSensitiveHeadersLayer,
     set_header::SetResponseHeaderLayer,
     trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer},
@@ -39,7 +41,8 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
     let conns_limit = Arc::new(Semaphore::new(config.clone().max_conn));
     let reqs_limit = GlobalConcurrencyLimitLayer::new(config.clone().max_reqs);
 
-    let state = State::new(config.clone());
+    let db_conn = Arc::new(DbConn::new(&config.db_path));
+    let context = Context::new(config.clone(), db_conn.clone());
 
     let options = warp::options().map(|| warp::reply()).map(|reply| {
         warp::reply::with_header(reply, "Access-Control-Allow-Headers", "Content-Type")
@@ -47,6 +50,7 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
 
     let end = options
         .or(assets!()
+            .or(user!())
             .or(hello!())
             .map(|reply| warp::reply::with_header(reply, "Access-Control-Allow-Origin", "*")))
         .recover(handle_rejection);
@@ -55,19 +59,14 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
         let conns_limit = conns_limit.clone();
         let reqs_limit = reqs_limit.clone();
 
-        let state = state.clone();
+        let context = context.clone();
         let end = end.clone();
 
         async move {
             let future_permit = conns_limit.acquire_owned();
             let conn_timeout = Duration::from_secs(CONN_TIMEOUT);
-            let expected_permit = timeout(conn_timeout, future_permit)
-                .await
-                .unwrap()
-                .unwrap();
-            let permit = Arc::new(
-                expected_permit
-            );
+            let expected_permit = timeout(conn_timeout, future_permit).await.unwrap().unwrap();
+            let permit = Arc::new(expected_permit);
 
             Ok::<_, Infallible>(
                 ServiceBuilder::new()
@@ -82,8 +81,8 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
                     )
                     // Set a timeout
                     .timeout(Duration::from_secs(REQ_TIMEOUT))
-                    // Share the state with each handler via a request extension
-                    .layer(AddExtensionLayer::new(state))
+                    // Share the context with each handler via a request extension
+                    .layer(AddExtensionLayer::new(context))
                     // Compress responses
                     .layer(CompressionLayer::new())
                     // Mark the `Authorization` and `Cookie` headers as sensitive so it doesn't show in logs
@@ -109,12 +108,16 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
 }
 
 #[derive(Clone)]
-pub struct State {
+pub struct Context {
     pub config: Arc<Config>,
+    pub db_conn: Arc<DbConn>,
 }
 
-impl State {
-    pub fn new(config: Arc<Config>) -> Self {
-        State { config: config }
+impl Context {
+    pub fn new(config: Arc<Config>, db_conn: Arc<DbConn>) -> Self {
+        Context {
+            config: config,
+            db_conn,
+        }
     }
 }

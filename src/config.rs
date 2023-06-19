@@ -15,6 +15,7 @@ pub struct Config {
     pub max_conn: usize,
     pub max_reqs: usize,
     pub is_mocking: bool,
+    pub db_path: String,
 }
 
 impl Config {
@@ -37,11 +38,14 @@ impl Config {
             Err(_) => MAX_INFLIGHT_REQUESTS,
         };
 
+        let db_path = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
         Config {
             app_addr,
             max_conn,
             max_reqs,
             is_mocking,
+            db_path,
         }
     }
 }
