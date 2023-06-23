@@ -1,0 +1,37 @@
+<h3>Create User</h3>
+<form action='/user' method='POST'>
+    <fieldset>
+        <legend>Personal Details</legend>
+        <div>
+            <label>
+                <span>First Name:</span>
+                <input type='text' name='first_name' required max=48 />
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>Middle Name:</span>
+                <input type='text' name='middle_name' max=48 />
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>Last Name:</span>
+                <input type='text' name='last_name' required max=48 />
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>Email:</span>
+                <input type='email' name='email' required max=128 />
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>Birth Date:</span>
+                <input type='date' name='birthday' required max=48 />
+            </label>
+        </div>
+    </fieldset>
+    <button type='submit'>Submit</button>
+</form>

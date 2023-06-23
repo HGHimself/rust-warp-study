@@ -1,5 +1,5 @@
 use crate::{schema::user, utils::now};
-use chrono::naive::{NaiveDateTime, NaiveDate};
+use chrono::naive::{NaiveDate, NaiveDateTime};
 use diesel::prelude::*;
 use serde::Deserialize;
 
@@ -31,6 +31,23 @@ impl User {
             deleted_at: self.deleted_at.clone(),
         }
     }
+
+    pub fn full_name(&self) -> String {
+        format!("{} {}", self.first_name, self.last_name)
+    }
+
+    pub fn inject_values(&self, string: &str) -> String {
+        string
+            .replace("{user.id}", &self.id.to_string())
+            .replace("{user.first_name}", &self.first_name)
+            .replace(
+                "{user.middle_name}",
+                &self.middle_name.clone().unwrap_or(String::from("")),
+            )
+            .replace("{user.last_name}", &self.last_name)
+            .replace("{user.email}", &self.email)
+            .replace("{user.birthday}", &self.birthday.to_string())
+    }
 }
 
 #[derive(Deserialize)]
@@ -56,9 +73,7 @@ pub struct NewUser {
 }
 
 impl NewUser {
-    pub fn new(
-        new_user: NewUserApi
-    ) -> Self {
+    pub fn new(new_user: NewUserApi) -> Self {
         NewUser {
             first_name: new_user.first_name,
             middle_name: new_user.middle_name,

@@ -1,0 +1,34 @@
+<h3>Page View</h3>
+<a href="/user/1">Back to profile</a>
+<h2>{page.name}</h2>
+<p>{page.description}</p>
+<div class="two-col">
+    <div>
+        <h4>Your links</h4>
+        <ul>
+            {links}
+        </ul>
+    </div>
+    <div>
+        <h4>Add a link</h4>
+        <form action='/page/{page.id}/link' method='POST'>
+            <fieldset>
+                <legend>Link Details</legend>
+                <div>
+                    <label>
+                        <span>Name:</span>
+                        <input type='name' name='name' required max=48 />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <span>Url:</span>
+                        <input type='url' name='url' required max=2048 />
+                    </label>
+                </div>
+                <input type="hidden" value="1" name="creator_user_id" />
+            </fieldset>
+            <button type='submit'>Submit</button>
+        </form>
+    </div>
+</div>

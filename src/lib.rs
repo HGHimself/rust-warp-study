@@ -65,38 +65,54 @@ pub fn with_subdomain() -> warp::filters::BoxedFilter<(Arc<Vec<String>>,)> {
         .boxed()
 }
 
-// This function receives a `Rejection` and tries to return a custom
-// value, otherwise simply passes the rejection along.
-pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
+pub async fn handle_final_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
     let code;
     let message;
 
-    if err.is_not_found() {
-        code = StatusCode::NOT_FOUND;
-        message = String::from("NOT_FOUND");
-    } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
-        message = match e.source() {
-            Some(cause) => format!("BAD_REQUEST: {cause}"),
-            None => String::from("BAD_REQUEST"),
-        };
-        code = StatusCode::BAD_REQUEST;
-    } else if let Some(_) = err.find::<reject::MethodNotAllowed>() {
+    if let Some(_) = err.find::<reject::MethodNotAllowed>() {
         code = StatusCode::METHOD_NOT_ALLOWED;
-        message = String::from("METHOD_NOT_ALLOWED");
-    } else if let Some(_) = err.find::<reject::UnsupportedMediaType>() {
-        code = StatusCode::UNSUPPORTED_MEDIA_TYPE;
-        message = String::from("UNSUPPORTED_MEDIA_TYPE");
+        message = "METHOD_NOT_ALLOWED";
     } else {
         // We should have expected this... Just log and say its a 500
         error!("unhandled rejection: {:?}", err);
         code = StatusCode::INTERNAL_SERVER_ERROR;
-        message = String::from("UNHANDLED_REJECTION");
+        message = "UNHANDLED_REJECTION";
     }
 
-    let json = warp::reply::json(&ErrorMessage {
-        code: code.as_u16(),
-        message: message,
-    });
+    log::error!("{}, {}", code, message);
 
+    let json = warp::reply::html(views::error::error(code, message));
     Ok(warp::reply::with_status(json, code))
+}
+
+pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Rejection> {
+    if let Some(_) = err.find::<reject::MethodNotAllowed>() {
+        Err(err)
+    } else {
+        let mut code = StatusCode::ACCEPTED;
+        let mut message = String::from("Super unknown error??");
+
+        if err.is_not_found() {
+            code = StatusCode::NOT_FOUND;
+            message = String::from("NOT_FOUND");
+        } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
+            let message = match e.source() {
+                Some(cause) => format!("BAD_REQUEST: {cause}"),
+                None => String::from("BAD_REQUEST"),
+            };
+            code = StatusCode::BAD_REQUEST;
+        } else if let Some(_) = err.find::<reject::UnsupportedMediaType>() {
+            code = StatusCode::UNSUPPORTED_MEDIA_TYPE;
+            message = String::from("UNSUPPORTED_MEDIA_TYPE");
+        } else {
+            // We should have expected this... Just log and say its a 500
+            error!("unhandled rejection: {:?}", err);
+            code = StatusCode::INTERNAL_SERVER_ERROR;
+            message = String::from("UNHANDLED_REJECTION");
+        }
+        log::error!("{}, {}", code, message);
+
+        let json = warp::reply::html(views::error::error(code, &message));
+        Ok(warp::reply::with_status(json, code))
+    }
 }

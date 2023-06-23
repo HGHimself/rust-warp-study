@@ -24,6 +24,7 @@ async fn with_user(
     id: i32,
 ) -> Result<(Context, models::user::User), warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
+    log::info!("Looking for user with id of {}", id);
     let user = models::user::read_by_id(&mut conn, id).map_err(|_| reject::not_found())?;
     Ok((context, user))
 }
@@ -44,7 +45,9 @@ async fn insert_new_user(
 ) -> Result<(Context, models::user::User), warp::Rejection> {
     log::info!("Saving User");
     let mut conn = context.db_conn.get_conn();
-    let user = models::user::NewUser::new(new_user).insert(&mut conn).map_err(|_| reject::reject())?;
+    let user = models::user::NewUser::new(new_user)
+        .insert(&mut conn)
+        .map_err(|_| reject::reject())?;
     log::info!("Saved User");
     Ok((context, user))
 }

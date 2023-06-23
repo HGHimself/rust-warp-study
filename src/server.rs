@@ -1,8 +1,8 @@
 use crate::{
-    api::{assets::assets, hello::hello, user::user},
+    api::{self, assets::assets, hello::hello, page::page, user::user},
     config::{generate_config, Config},
     db_conn::DbConn,
-    handle_rejection, handlers, is_static, routes,
+    handle_final_rejection, handle_rejection, handlers, is_static, routes,
 };
 
 use bytes::Bytes;
@@ -49,11 +49,12 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
     });
 
     let end = options
-        .or(assets!()
-            .or(user!())
-            .or(hello!())
+        .or(user!()
+            // .or(hello!())
+            .or(page!())
+            .or(assets!())
             .map(|reply| warp::reply::with_header(reply, "Access-Control-Allow-Origin", "*")))
-        .recover(handle_rejection);
+        .recover(handle_final_rejection);
 
     let app = make_service_fn(move |_stream: &AddrStream| {
         let conns_limit = conns_limit.clone();
@@ -71,14 +72,14 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
             Ok::<_, Infallible>(
                 ServiceBuilder::new()
                     .layer(reqs_limit)
-                    .layer(
-                        TraceLayer::new_for_http()
-                            .on_body_chunk(|chunk: &Bytes, latency: Duration, _: &tracing::Span| {
-                                tracing::trace!(size_bytes = chunk.len(), latency = ?latency, "sending body chunk")
-                            })
-                            .make_span_with(DefaultMakeSpan::new().include_headers(true))
-                            .on_response(DefaultOnResponse::new().include_headers(true).latency_unit(LatencyUnit::Micros)),
-                    )
+                    // .layer(
+                    //     TraceLayer::new_for_http()
+                    //         .on_body_chunk(|chunk: &Bytes, latency: Duration, _: &tracing::Span| {
+                    //             tracing::trace!(size_bytes = chunk.len(), latency = ?latency, "sending body chunk")
+                    //         })
+                    //         .make_span_with(DefaultMakeSpan::new().include_headers(true))
+                    //         .on_response(DefaultOnResponse::new().include_headers(true).latency_unit(LatencyUnit::Micros)),
+                    // )
                     // Set a timeout
                     .timeout(Duration::from_secs(REQ_TIMEOUT))
                     // Share the context with each handler via a request extension
