@@ -13,7 +13,7 @@ pub async fn view(
             warp::reject::not_found()
         })?
         .iter()
-        .map(|link| views::link::link(link))
+        .map(|link| page.inject_values(&views::link::link(link)))
         .collect::<String>();
 
     let page_html = views::page::view(page).replace("{links}", &links);

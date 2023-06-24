@@ -1,4 +1,4 @@
-use crate::{models, views};
+use crate::{models};
 use std::include_str;
 
 pub fn link(link: &models::link::Link) -> String {

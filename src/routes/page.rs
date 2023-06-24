@@ -1,5 +1,5 @@
-use crate::{models, server::Context};
-use std::sync::Arc;
+use crate::{models, server::Context, DuplicateResource};
+use diesel::result::{DatabaseErrorKind, Error::DatabaseError};
 use warp::{
     filters::{self, BoxedFilter},
     reject, Filter,
@@ -14,6 +14,7 @@ pub fn get_by_id() -> BoxedFilter<(Context, models::page::Page)> {
         .and(path_prefix())
         .and(filters::ext::get::<Context>())
         .and(warp::path::param::<i32>())
+        .and(warp::path::end())
         .and_then(with_page)
         .untuple_one()
         .boxed()
@@ -32,6 +33,7 @@ async fn with_page(
 pub fn create() -> BoxedFilter<(Context, models::page::Page)> {
     warp::post()
         .and(path_prefix())
+        .and(warp::path::end())
         .and(filters::ext::get::<Context>())
         .and(warp::body::form::<models::page::NewPageApi>())
         .and_then(insert_new_page)
@@ -49,7 +51,12 @@ async fn insert_new_page(
         .insert(&mut conn)
         .map_err(|e| {
             log::error!("{:?}", e);
-            reject::reject()
+            match e {
+                DatabaseError(DatabaseErrorKind::UniqueViolation, _) => {
+                    reject::custom(DuplicateResource)
+                }
+                _ => reject::reject(),
+            }
         })?;
     log::info!("Saved Page");
     Ok((context, page))
@@ -59,6 +66,7 @@ pub fn create_form() -> BoxedFilter<()> {
     warp::get()
         .and(path_prefix())
         .and(warp::path("create"))
+        .and(warp::path::end())
         .boxed()
 }
 
@@ -68,6 +76,7 @@ pub fn create_link() -> BoxedFilter<(Context, models::page::Page)> {
         .and(filters::ext::get::<Context>())
         .and(warp::path::param::<i32>())
         .and(warp::path("link"))
+        .and(warp::path::end())
         .and(warp::body::form::<models::link::NewLinkApi>())
         .and_then(with_new_link)
         .untuple_one()
@@ -97,5 +106,34 @@ async fn with_new_link(
         .map_err(|_| reject::reject())?;
 
     log::info!("Saved Link");
+    Ok((context, page_id))
+}
+
+pub fn remove_link() -> BoxedFilter<(Context, models::page::Page)> {
+    warp::delete()
+        .and(path_prefix())
+        .and(filters::ext::get::<Context>())
+        .and(warp::path::param::<i32>())
+        .and(warp::path("link"))
+        .and(warp::path::param::<i32>())
+        .and(warp::path::end())
+        .and_then(with_remove_link)
+        .untuple_one()
+        .and_then(with_page)
+        .untuple_one()
+        .boxed()
+}
+
+async fn with_remove_link(
+    context: Context,
+    page_id: i32,
+    link_id: i32,
+) -> Result<(Context, i32), warp::Rejection> {
+    log::info!("Removing PageLink");
+    let mut conn = context.db_conn.get_conn();
+    models::page_link::remove_link_by_page_id_and_link_id(&mut conn, page_id, link_id)
+        .map_err(|_| reject::reject())?;
+
+    log::info!("Removed PageLink");
     Ok((context, page_id))
 }

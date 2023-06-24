@@ -1,37 +1,33 @@
 use crate::{
-    api::{self, assets::assets, hello::hello, page::page, user::user},
-    config::{generate_config, Config},
+    api::{assets::assets, page::page, user::user},
+    config::{Config},
     db_conn::DbConn,
-    handle_final_rejection, handle_rejection, handlers, is_static, routes,
+    handle_final_rejection, handle_rejection, handlers, routes,
 };
 
-use bytes::Bytes;
 use tower_http::{
     add_extension::AddExtensionLayer,
     compression::CompressionLayer,
-    limit::RequestBodyLimitLayer,
     sensitive_headers::SetSensitiveHeadersLayer,
-    set_header::SetResponseHeaderLayer,
     trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer},
     LatencyUnit,
 };
 
 use hyper::{
-    body::HttpBody,
-    header::{self, HeaderValue},
+    header,
     server::conn::AddrStream,
     service::make_service_fn,
-    Body, Response, Server, StatusCode,
+    Body, Response, Server,
 };
-
+use bytes::Bytes;
 use std::{
     convert::Infallible,
-    net::{SocketAddr, TcpListener},
+    net::{TcpListener},
     sync::Arc,
     time::Duration,
 };
 use tokio::{sync::Semaphore, time::timeout};
-use tower::{limit::GlobalConcurrencyLimitLayer, make::Shared, ServiceBuilder};
+use tower::{limit::GlobalConcurrencyLimitLayer, ServiceBuilder};
 use warp::Filter;
 
 const CONN_TIMEOUT: u64 = 2 * 60;
@@ -72,14 +68,14 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
             Ok::<_, Infallible>(
                 ServiceBuilder::new()
                     .layer(reqs_limit)
-                    // .layer(
-                    //     TraceLayer::new_for_http()
-                    //         .on_body_chunk(|chunk: &Bytes, latency: Duration, _: &tracing::Span| {
-                    //             tracing::trace!(size_bytes = chunk.len(), latency = ?latency, "sending body chunk")
-                    //         })
-                    //         .make_span_with(DefaultMakeSpan::new().include_headers(true))
-                    //         .on_response(DefaultOnResponse::new().include_headers(true).latency_unit(LatencyUnit::Micros)),
-                    // )
+                    .layer(
+                        TraceLayer::new_for_http()
+                            .on_body_chunk(|chunk: &Bytes, latency: Duration, _: &tracing::Span| {
+                                tracing::trace!(size_bytes = chunk.len(), latency = ?latency, "sending body chunk")
+                            })
+                            .make_span_with(DefaultMakeSpan::new().include_headers(true))
+                            .on_response(DefaultOnResponse::new().include_headers(true).latency_unit(LatencyUnit::Micros)),
+                    )
                     // Set a timeout
                     .timeout(Duration::from_secs(REQ_TIMEOUT))
                     // Share the context with each handler via a request extension

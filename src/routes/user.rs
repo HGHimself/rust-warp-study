@@ -1,5 +1,4 @@
 use crate::{models, server::Context};
-use std::sync::Arc;
 use warp::{
     filters::{self, BoxedFilter},
     reject, Filter,
@@ -14,6 +13,7 @@ pub fn get_by_id() -> BoxedFilter<(Context, models::user::User)> {
         .and(path_prefix())
         .and(filters::ext::get::<Context>())
         .and(warp::path::param::<i32>())
+        .and(warp::path::end())
         .and_then(with_user)
         .untuple_one()
         .boxed()
@@ -32,6 +32,7 @@ async fn with_user(
 pub fn create() -> BoxedFilter<(Context, models::user::User)> {
     warp::post()
         .and(path_prefix())
+        .and(warp::path::end())
         .and(filters::ext::get::<Context>())
         .and(warp::body::form::<models::user::NewUserApi>())
         .and_then(insert_new_user)
@@ -56,5 +57,6 @@ pub fn create_form() -> BoxedFilter<()> {
     warp::get()
         .and(path_prefix())
         .and(warp::path("create"))
+        .and(warp::path::end())
         .boxed()
 }

@@ -1,10 +1,9 @@
 use crate::{
     models,
-    routes::page::get_by_id,
-    schema::{link, page, page_link},
+    schema::{page, page_link},
     utils::now,
 };
-use chrono::naive::{NaiveDate, NaiveDateTime};
+use chrono::naive::{NaiveDateTime};
 use diesel::prelude::*;
 use serde::Deserialize;
 
@@ -87,7 +86,10 @@ pub fn read(conn: &mut PgConnection) -> Result<Vec<Page>, diesel::result::Error>
 }
 
 pub fn read_by_id(conn: &mut PgConnection, id: i32) -> Result<Page, diesel::result::Error> {
-    page::table.filter(page::id.eq(id)).first::<Page>(conn)
+    page::table
+        .filter(page::id.eq(id))
+        .filter(page::deleted_at.is_null())
+        .first::<Page>(conn)
 }
 
 pub fn delete(conn: &mut PgConnection, page: &Page) -> QueryResult<usize> {
@@ -108,6 +110,7 @@ pub fn read_pages_by_user_id(
 ) -> Result<Vec<Page>, diesel::result::Error> {
     page::table
         .filter(page::user_id.eq(user_id))
+        .filter(page::deleted_at.is_null())
         .load::<Page>(conn)
 }
 
@@ -118,5 +121,6 @@ pub fn read_pages_by_link(
     models::page_link::PageLink::belonging_to(link)
         .inner_join(page::table)
         .select(Page::as_select())
+        .filter(page_link::deleted_at.is_null())
         .load(conn)
 }

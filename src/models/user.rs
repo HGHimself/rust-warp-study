@@ -102,7 +102,10 @@ pub fn read(conn: &mut PgConnection) -> Result<Vec<User>, diesel::result::Error>
 }
 
 pub fn read_by_id(conn: &mut PgConnection, id: i32) -> Result<User, diesel::result::Error> {
-    user::table.filter(user::id.eq(id)).first::<User>(conn)
+    user::table
+        .filter(user::id.eq(id))
+        .filter(user::deleted_at.is_null())
+        .first::<User>(conn)
 }
 
 pub fn delete(conn: &mut PgConnection, user: &User) -> QueryResult<usize> {

@@ -1,5 +1,5 @@
 use crate::{models, schema::page_link, utils::now};
-use chrono::naive::{NaiveDate, NaiveDateTime};
+use chrono::naive::NaiveDateTime;
 use diesel::prelude::*;
 
 #[derive(Identifiable, Selectable, Queryable, Associations, Debug)]
@@ -49,4 +49,16 @@ pub fn create(
     diesel::insert_into(page_link::table)
         .values(new_page_link)
         .get_result(conn)
+}
+
+pub fn remove_link_by_page_id_and_link_id(
+    conn: &mut PgConnection,
+    page_id: i32,
+    link_id: i32,
+) -> Result<usize, diesel::result::Error> {
+    diesel::update(page_link::table)
+        .set((page_link::deleted_at.eq(Some(now())),))
+        .filter(page_link::page_id.eq(page_id))
+        .filter(page_link::link_id.eq(link_id))
+        .execute(conn)
 }

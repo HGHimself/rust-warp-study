@@ -1,5 +1,9 @@
-use crate::{models, schema::link, utils::now};
-use chrono::naive::{NaiveDate, NaiveDateTime};
+use crate::{
+    models,
+    schema::{link, page_link},
+    utils::now,
+};
+use chrono::naive::{NaiveDateTime};
 use diesel::prelude::*;
 use serde::Deserialize;
 
@@ -120,5 +124,6 @@ pub fn read_links_by_page(
     models::page_link::PageLink::belonging_to(page)
         .inner_join(link::table)
         .select(Link::as_select())
+        .filter(page_link::deleted_at.is_null())
         .load(conn)
 }

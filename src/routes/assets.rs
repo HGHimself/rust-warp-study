@@ -1,4 +1,3 @@
-use crate::{is_static, with_subdomain};
 use warp::{filters::BoxedFilter, fs::File, Filter};
 
 pub fn get_static() -> BoxedFilter<(File,)> {
