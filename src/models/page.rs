@@ -3,7 +3,7 @@ use crate::{
     schema::{page, page_link},
     utils::now,
 };
-use chrono::naive::{NaiveDateTime};
+use chrono::naive::NaiveDateTime;
 use diesel::prelude::*;
 use serde::Deserialize;
 

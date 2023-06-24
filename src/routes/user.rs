@@ -1,4 +1,4 @@
-use crate::{models, server::Context};
+use crate::{models, server::Context, NotFound};
 use warp::{
     filters::{self, BoxedFilter},
     reject, Filter,
@@ -9,8 +9,8 @@ fn path_prefix() -> BoxedFilter<()> {
 }
 
 pub fn get_by_id() -> BoxedFilter<(Context, models::user::User)> {
-    warp::get()
-        .and(path_prefix())
+    path_prefix()
+        .and(warp::get())
         .and(filters::ext::get::<Context>())
         .and(warp::path::param::<i32>())
         .and(warp::path::end())
@@ -25,13 +25,13 @@ async fn with_user(
 ) -> Result<(Context, models::user::User), warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
     log::info!("Looking for user with id of {}", id);
-    let user = models::user::read_by_id(&mut conn, id).map_err(|_| reject::not_found())?;
+    let user = models::user::read_by_id(&mut conn, id).map_err(|_| reject::custom(NotFound))?;
     Ok((context, user))
 }
 
 pub fn create() -> BoxedFilter<(Context, models::user::User)> {
-    warp::post()
-        .and(path_prefix())
+    path_prefix()
+        .and(warp::post())
         .and(warp::path::end())
         .and(filters::ext::get::<Context>())
         .and(warp::body::form::<models::user::NewUserApi>())
@@ -54,8 +54,8 @@ async fn insert_new_user(
 }
 
 pub fn create_form() -> BoxedFilter<()> {
-    warp::get()
-        .and(path_prefix())
+    path_prefix()
+        .and(warp::get())
         .and(warp::path("create"))
         .and(warp::path::end())
         .boxed()

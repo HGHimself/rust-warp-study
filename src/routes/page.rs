@@ -1,4 +1,4 @@
-use crate::{models, server::Context, DuplicateResource};
+use crate::{models, server::Context, DuplicateResource, NotFound};
 use diesel::result::{DatabaseErrorKind, Error::DatabaseError};
 use warp::{
     filters::{self, BoxedFilter},
@@ -10,8 +10,8 @@ fn path_prefix() -> BoxedFilter<()> {
 }
 
 pub fn get_by_id() -> BoxedFilter<(Context, models::page::Page)> {
-    warp::get()
-        .and(path_prefix())
+    path_prefix()
+        .and(warp::get())
         .and(filters::ext::get::<Context>())
         .and(warp::path::param::<i32>())
         .and(warp::path::end())
@@ -26,13 +26,13 @@ async fn with_page(
 ) -> Result<(Context, models::page::Page), warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
     log::info!("Looking for page with id of {}", id);
-    let page = models::page::read_by_id(&mut conn, id).map_err(|_| reject::not_found())?;
+    let page = models::page::read_by_id(&mut conn, id).map_err(|_| reject::custom(NotFound))?;
     Ok((context, page))
 }
 
 pub fn create() -> BoxedFilter<(Context, models::page::Page)> {
-    warp::post()
-        .and(path_prefix())
+    path_prefix()
+        .and(warp::post())
         .and(warp::path::end())
         .and(filters::ext::get::<Context>())
         .and(warp::body::form::<models::page::NewPageApi>())
@@ -63,16 +63,16 @@ async fn insert_new_page(
 }
 
 pub fn create_form() -> BoxedFilter<()> {
-    warp::get()
-        .and(path_prefix())
+    path_prefix()
+        .and(warp::get())
         .and(warp::path("create"))
         .and(warp::path::end())
         .boxed()
 }
 
 pub fn create_link() -> BoxedFilter<(Context, models::page::Page)> {
-    warp::post()
-        .and(path_prefix())
+    path_prefix()
+        .and(warp::post())
         .and(filters::ext::get::<Context>())
         .and(warp::path::param::<i32>())
         .and(warp::path("link"))
@@ -92,6 +92,7 @@ async fn with_new_link(
 ) -> Result<(Context, i32), warp::Rejection> {
     log::info!("Saving Link");
     let mut conn = context.db_conn.get_conn();
+    let name = new_link.name.clone();
 
     let link = match models::link::read_by_url(&mut conn, new_link.url.clone()) {
         Err(diesel::NotFound) => models::link::NewLink::new(new_link)
@@ -101,17 +102,22 @@ async fn with_new_link(
         _ => Err(warp::reject()),
     }?;
 
-    models::page_link::NewPageLink::new(page_id, link.id)
+    models::page_link::NewPageLink::new(page_id, link.id, name)
         .insert(&mut conn)
-        .map_err(|_| reject::reject())?;
+        .map_err(|e| match e {
+            DatabaseError(DatabaseErrorKind::UniqueViolation, _) => {
+                reject::custom(DuplicateResource)
+            }
+            _ => reject::reject(),
+        })?;
 
     log::info!("Saved Link");
     Ok((context, page_id))
 }
 
 pub fn remove_link() -> BoxedFilter<(Context, models::page::Page)> {
-    warp::delete()
-        .and(path_prefix())
+    path_prefix()
+        .and(warp::delete())
         .and(filters::ext::get::<Context>())
         .and(warp::path::param::<i32>())
         .and(warp::path("link"))
@@ -132,7 +138,7 @@ async fn with_remove_link(
     log::info!("Removing PageLink");
     let mut conn = context.db_conn.get_conn();
     models::page_link::remove_link_by_page_id_and_link_id(&mut conn, page_id, link_id)
-        .map_err(|_| reject::reject())?;
+        .map_err(|_| reject::custom(NotFound))?;
 
     log::info!("Removed PageLink");
     Ok((context, page_id))

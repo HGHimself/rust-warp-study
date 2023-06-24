@@ -3,6 +3,7 @@ CREATE TABLE page_link (
     id SERIAL PRIMARY KEY,
     link_id INTEGER NOT NULL,
     page_id INTEGER NOT NULL,
+    name VARCHAR(64) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
     deleted_at TIMESTAMP,

@@ -11,9 +11,16 @@ pub struct PageLink {
     pub id: i32,
     pub page_id: i32,
     pub link_id: i32,
+    pub name: String,
     pub created_at: NaiveDateTime,
     pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
+}
+
+impl PageLink {
+    pub fn inject_values(&self, string: &str) -> String {
+        string.replace("{page_link.name}", &self.name.to_string())
+    }
 }
 
 #[derive(Insertable)]
@@ -21,16 +28,18 @@ pub struct PageLink {
 pub struct NewPageLink {
     pub page_id: i32,
     pub link_id: i32,
+    pub name: String,
     pub created_at: NaiveDateTime,
     pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
 }
 
 impl NewPageLink {
-    pub fn new(page_id: i32, link_id: i32) -> Self {
+    pub fn new(page_id: i32, link_id: i32, name: String) -> Self {
         Self {
             page_id: page_id,
             link_id: link_id,
+            name: name,
             created_at: now(),
             updated_at: None,
             deleted_at: None,

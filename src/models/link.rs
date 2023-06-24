@@ -3,16 +3,17 @@ use crate::{
     schema::{link, page_link},
     utils::now,
 };
-use chrono::naive::{NaiveDateTime};
+use chrono::naive::NaiveDateTime;
 use diesel::prelude::*;
 use serde::Deserialize;
+
+use super::page_link::PageLink;
 
 #[derive(Debug, Identifiable, Selectable, Queryable, AsChangeset)]
 #[diesel(table_name = link)]
 pub struct Link {
     pub id: i32,
     pub url: String,
-    pub name: String,
     pub creator_user_id: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: Option<NaiveDateTime>,
@@ -24,7 +25,6 @@ impl Link {
         Self {
             id: self.id,
             url: self.url.clone(),
-            name: self.name.clone(),
             creator_user_id: self.creator_user_id.clone(),
             created_at: self.created_at.clone(),
             updated_at: Some(now()),
@@ -36,7 +36,6 @@ impl Link {
         string
             .replace("{link.id}", &self.id.to_string())
             .replace("{link.url}", &self.url)
-            .replace("{link.name}", &self.name)
             .replace(
                 "{link.favicon}",
                 &(match url::Url::parse(&self.url) {
@@ -63,7 +62,6 @@ pub struct NewLinkApi {
 #[diesel(table_name = link)]
 pub struct NewLink {
     pub url: String,
-    pub name: String,
     pub creator_user_id: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: Option<NaiveDateTime>,
@@ -74,7 +72,6 @@ impl NewLink {
     pub fn new(new_link: NewLinkApi) -> Self {
         NewLink {
             url: new_link.url,
-            name: new_link.name,
             creator_user_id: new_link.creator_user_id,
             created_at: now(),
             updated_at: None,
@@ -120,10 +117,10 @@ pub fn update(conn: &mut PgConnection, link: &mut Link) -> QueryResult<usize> {
 pub fn read_links_by_page(
     conn: &mut PgConnection,
     page: &models::page::Page,
-) -> Result<Vec<Link>, diesel::result::Error> {
+) -> Result<Vec<(Link, PageLink)>, diesel::result::Error> {
     models::page_link::PageLink::belonging_to(page)
         .inner_join(link::table)
-        .select(Link::as_select())
+        .select((Link::as_select(), PageLink::as_select()))
         .filter(page_link::deleted_at.is_null())
-        .load(conn)
+        .load::<(Link, PageLink)>(conn)
 }

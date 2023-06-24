@@ -1,6 +1,6 @@
 use crate::{
-    api::{assets::assets, page::page, user::user},
-    config::{Config},
+    api::{assets::assets, link::link_api, page::page, user::user},
+    config::Config,
     db_conn::DbConn,
     handle_final_rejection, handle_rejection, handlers, routes,
 };
@@ -13,19 +13,9 @@ use tower_http::{
     LatencyUnit,
 };
 
-use hyper::{
-    header,
-    server::conn::AddrStream,
-    service::make_service_fn,
-    Body, Response, Server,
-};
 use bytes::Bytes;
-use std::{
-    convert::Infallible,
-    net::{TcpListener},
-    sync::Arc,
-    time::Duration,
-};
+use hyper::{header, server::conn::AddrStream, service::make_service_fn, Body, Response, Server};
+use std::{convert::Infallible, net::TcpListener, sync::Arc, time::Duration};
 use tokio::{sync::Semaphore, time::timeout};
 use tower::{limit::GlobalConcurrencyLimitLayer, ServiceBuilder};
 use warp::Filter;
@@ -40,15 +30,10 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
     let db_conn = Arc::new(DbConn::new(&config.db_path));
     let context = Context::new(config.clone(), db_conn.clone());
 
-    let options = warp::options().map(|| warp::reply()).map(|reply| {
-        warp::reply::with_header(reply, "Access-Control-Allow-Headers", "Content-Type")
-    });
-
-    let end = options
+    let end = assets!()
         .or(user!()
-            // .or(hello!())
             .or(page!())
-            .or(assets!())
+            .or(link_api!())
             .map(|reply| warp::reply::with_header(reply, "Access-Control-Allow-Origin", "*")))
         .recover(handle_final_rejection);
 

@@ -13,7 +13,7 @@ pub mod views;
 extern crate diesel;
 
 use log::error;
-use serde_derive::{Serialize};
+use serde_derive::Serialize;
 use std::convert::Infallible;
 use std::error::Error;
 use std::sync::Arc;
@@ -59,8 +59,11 @@ pub fn with_subdomain() -> warp::filters::BoxedFilter<(Arc<Vec<String>>,)> {
 
 #[derive(Debug)]
 struct DuplicateResource;
-
 impl reject::Reject for DuplicateResource {}
+
+#[derive(Debug)]
+struct NotFound;
+impl reject::Reject for NotFound {}
 
 pub async fn handle_final_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
     let code;
@@ -85,7 +88,7 @@ pub async fn handle_final_rejection(err: Rejection) -> Result<impl Reply, Infall
 pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Rejection> {
     if let Some(DuplicateResource) = err.find::<DuplicateResource>() {
         error_reply(StatusCode::BAD_REQUEST, String::from("DUPLICATE"))
-    } else if err.is_not_found() {
+    } else if let Some(NotFound) = err.find::<NotFound>() {
         error_reply(StatusCode::NOT_FOUND, String::from("NOT_FOUND"))
     } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
         let message = match e.source() {
@@ -99,7 +102,10 @@ pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Rejection> {
             String::from("UNSUPPORTED_MEDIA_TYPE"),
         )
     } else if let Some(_) = err.find::<reject::MethodNotAllowed>() {
-        log::info!("Passing error through!");
+        log::info!("Passing MethodNotAllowed error through!");
+        Err(err)
+    } else if err.is_not_found() {
+        log::info!("Passing NotFound error through!");
         Err(err)
     } else {
         // We should have expected this... Just log and say its a 500

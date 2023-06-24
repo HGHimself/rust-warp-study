@@ -2,7 +2,6 @@ table! {
     link (id) {
         id -> Int4,
         url -> Varchar,
-        name -> Varchar,
         creator_user_id -> Int4,
         created_at -> Timestamp,
         updated_at -> Nullable<Timestamp>,
@@ -27,6 +26,7 @@ table! {
         id -> Int4,
         link_id -> Int4,
         page_id -> Int4,
+        name -> Varchar,
         created_at -> Timestamp,
         updated_at -> Nullable<Timestamp>,
         deleted_at -> Nullable<Timestamp>,

@@ -1,9 +1,12 @@
 <li>
     <a href="{link.url}" target="_blank" class="flex fit-content">
         <img src="{link.favicon}" alt="{link.name}" class="favicon" onerror="standby(this)" />
-        <span>{link.name}</span>
+        <span>{page_link.name}</span>
     </a>
     <button hx-delete="/page/{page.id}/link/{link.id}" hx-target="body">
         Remove
     </button>
+    <a href="/link/{link.id}">
+        Explore
+    </a>
 </li>
