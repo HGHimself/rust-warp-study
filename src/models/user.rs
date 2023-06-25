@@ -1,5 +1,8 @@
-use crate::{schema::user, utils::now};
-use chrono::naive::{NaiveDate, NaiveDateTime};
+use crate::{
+    schema::user,
+    utils::{encrypt, now, verify},
+};
+use chrono::naive::NaiveDateTime;
 use diesel::prelude::*;
 use serde::Deserialize;
 
@@ -7,11 +10,8 @@ use serde::Deserialize;
 #[diesel(table_name = user)]
 pub struct User {
     pub id: i32,
-    pub first_name: String,
-    pub middle_name: Option<String>,
-    pub last_name: String,
-    pub email: String,
-    pub birthday: NaiveDate,
+    pub username: String,
+    pub password: String,
     pub created_at: NaiveDateTime,
     pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
@@ -21,65 +21,73 @@ impl User {
     pub fn for_update(&self) -> Self {
         Self {
             id: self.id,
-            first_name: self.first_name.clone(),
-            middle_name: self.middle_name.clone(),
-            last_name: self.last_name.clone(),
-            email: self.email.clone(),
-            birthday: self.birthday.clone(),
+            username: self.username.clone(),
+            password: self.password.clone(),
             created_at: self.created_at.clone(),
             updated_at: Some(now()),
             deleted_at: self.deleted_at.clone(),
         }
     }
 
-    pub fn full_name(&self) -> String {
-        format!("{} {}", self.first_name, self.last_name)
-    }
-
     pub fn inject_values(&self, string: &str) -> String {
         string
             .replace("{user.id}", &self.id.to_string())
-            .replace("{user.first_name}", &self.first_name)
-            .replace(
-                "{user.middle_name}",
-                &self.middle_name.clone().unwrap_or(String::from("")),
-            )
-            .replace("{user.last_name}", &self.last_name)
-            .replace("{user.email}", &self.email)
-            .replace("{user.birthday}", &self.birthday.to_string())
+            .replace("{user.username}", &self.username)
     }
 }
 
 #[derive(Deserialize)]
 pub struct NewUserApi {
-    pub first_name: String,
-    pub middle_name: Option<String>,
-    pub last_name: String,
-    pub email: String,
-    pub birthday: NaiveDate,
+    pub username: String,
+    pub password: String,
+    pub confirm_password: String,
+}
+
+impl Into<UserCredentialsEncrypted> for NewUserApi {
+    fn into(self) -> UserCredentialsEncrypted {
+        UserCredentialsEncrypted {
+            username: self.username,
+            password: encrypt(&self.password),
+        }
+    }
+}
+
+#[derive(Deserialize)]
+pub struct UserCredentialsApi {
+    pub username: String,
+    pub password: String,
+}
+
+impl Into<UserCredentialsEncrypted> for UserCredentialsApi {
+    fn into(self) -> UserCredentialsEncrypted {
+        UserCredentialsEncrypted {
+            username: self.username,
+            password: encrypt(&self.password),
+        }
+    }
+}
+
+pub struct UserCredentialsEncrypted {
+    pub username: String,
+    pub password: String,
 }
 
 #[derive(Insertable)]
 #[diesel(table_name = user)]
 pub struct NewUser {
-    pub first_name: String,
-    pub middle_name: Option<String>,
-    pub last_name: String,
-    pub email: String,
-    pub birthday: NaiveDate,
+    pub username: String,
+    pub password: String,
     pub created_at: NaiveDateTime,
     pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
 }
 
 impl NewUser {
-    pub fn new(new_user: NewUserApi) -> Self {
+    pub fn new(new_user: UserCredentialsEncrypted) -> Self {
+        log::error!("{}", new_user.password);
         NewUser {
-            first_name: new_user.first_name,
-            middle_name: new_user.middle_name,
-            last_name: new_user.last_name,
-            email: new_user.email,
-            birthday: new_user.birthday,
+            username: new_user.username,
+            password: new_user.password,
             created_at: now(),
             updated_at: None,
             deleted_at: None,
@@ -106,6 +114,24 @@ pub fn read_by_id(conn: &mut PgConnection, id: i32) -> Result<User, diesel::resu
         .filter(user::id.eq(id))
         .filter(user::deleted_at.is_null())
         .first::<User>(conn)
+}
+
+pub fn read_by_credentials(
+    conn: &mut PgConnection,
+    credentials: UserCredentialsApi,
+) -> Result<User, diesel::result::Error> {
+    let user = user::table
+        .filter(user::username.eq(credentials.username))
+        .filter(user::deleted_at.is_null())
+        .first::<User>(conn)?;
+
+    log::info!("comparing {} {}", credentials.password, user.password);
+
+    if verify(&credentials.password, &user.password) {
+        Ok(user)
+    } else {
+        Err(diesel::NotFound)
+    }
 }
 
 pub fn delete(conn: &mut PgConnection, user: &User) -> QueryResult<usize> {

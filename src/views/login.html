@@ -1,0 +1,20 @@
+<h3>Login</h3>
+<form action='/user/login' method='POST'>
+    <fieldset>
+        <legend>Login Credentials</legend>
+        <div>
+            <label>
+                <span>Username:</span>
+                <input type='text' name='username' required max=48 />
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>Password:</span>
+                <input type='password' name='password' max=48 />
+            </label>
+        </div>
+    </fieldset>
+    <button type='submit'>Login</button>
+    <a href='/user/signup'>Need an account?</a>
+</form>

@@ -9,7 +9,7 @@ use std::{
 #[tokio::main]
 async fn main() {
     let filter = std::env::var("RUST_LOG")
-        .unwrap_or_else(|_| "rust_warp_study=debug,tower_http=debug,warp=debug".to_owned());
+        .unwrap_or_else(|_| "rust_warp_study=debug,tower_http=debug,warp=trace".to_owned());
 
     // Configure the default `tracing` subscriber.
     // The `fmt` subscriber from the `tracing-subscriber` crate logs `tracing`

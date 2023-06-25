@@ -1,4 +1,7 @@
 -- This file should undo anything in `up.sql`
+ALTER TABLE "user"
+DROP CONSTRAINT user_unique_username;
+
 ALTER TABLE link
 DROP CONSTRAINT link_unique_url;
 

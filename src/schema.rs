@@ -36,11 +36,8 @@ table! {
 table! {
     user (id) {
         id -> Int4,
-        first_name -> Varchar,
-        middle_name -> Nullable<Varchar>,
-        last_name -> Varchar,
-        email -> Varchar,
-        birthday -> Date,
+        username -> Varchar,
+        password -> Varchar,
         created_at -> Timestamp,
         updated_at -> Nullable<Timestamp>,
         deleted_at -> Nullable<Timestamp>,
@@ -52,4 +49,9 @@ joinable!(page -> user (user_id));
 joinable!(page_link -> link (link_id));
 joinable!(page_link -> page (page_id));
 
-allow_tables_to_appear_in_same_query!(link, page, page_link, user,);
+allow_tables_to_appear_in_same_query!(
+    link,
+    page,
+    page_link,
+    user,
+);

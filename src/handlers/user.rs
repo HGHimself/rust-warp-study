@@ -20,6 +20,10 @@ pub async fn profile(
     Ok(warp::reply::html(profile_html))
 }
 
-pub async fn create_user() -> Result<impl warp::Reply, Infallible> {
-    Ok(warp::reply::html(views::user::create_user()))
+pub async fn signup_form() -> Result<impl warp::Reply, Infallible> {
+    Ok(warp::reply::html(views::user::signup_form()))
+}
+
+pub async fn login_form() -> Result<impl warp::Reply, Infallible> {
+    Ok(warp::reply::html(views::user::login_form()))
 }

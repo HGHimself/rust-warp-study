@@ -1,4 +1,5 @@
 use chrono::prelude::*;
+use pwhash::bcrypt;
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -18,4 +19,20 @@ pub fn read_file_to_bytes(path: &String) -> std::io::Result<Vec<u8>> {
     let mut contents = Vec::<u8>::new();
     file.read_to_end(&mut contents)?;
     Ok(contents)
+}
+
+pub fn encrypt(password: &str) -> String {
+    bcrypt::hash(password).unwrap()
+}
+
+pub fn verify(password: &str, hashed: &str) -> bool {
+    bcrypt::verify(password, hashed)
+}
+
+#[test]
+fn test_encryption() {
+    // Hash a password with default parameters.
+    let h_new = encrypt("password");
+
+    assert!(verify("password", &h_new));
 }
