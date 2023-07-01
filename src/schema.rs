@@ -34,6 +34,17 @@ table! {
 }
 
 table! {
+    session (id) {
+        id -> Int4,
+        user_id -> Int4,
+        valid_until -> Timestamp,
+        created_at -> Timestamp,
+        updated_at -> Nullable<Timestamp>,
+        deleted_at -> Nullable<Timestamp>,
+    }
+}
+
+table! {
     user (id) {
         id -> Int4,
         username -> Varchar,
@@ -45,8 +56,7 @@ table! {
 }
 
 joinable!(link -> user (creator_user_id));
-joinable!(page -> user (user_id));
 joinable!(page_link -> link (link_id));
 joinable!(page_link -> page (page_id));
 
-allow_tables_to_appear_in_same_query!(link, page, page_link, user,);
+allow_tables_to_appear_in_same_query!(link, page, page_link, session, user,);

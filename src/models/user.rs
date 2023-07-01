@@ -1,12 +1,13 @@
 use crate::{
-    schema::user,
+    models,
+    schema::{session, user},
     utils::{encrypt, now, verify},
 };
 use chrono::naive::NaiveDateTime;
 use diesel::prelude::*;
 use serde::Deserialize;
 
-#[derive(Debug, Identifiable, Queryable, AsChangeset)]
+#[derive(Debug, Identifiable, Queryable, AsChangeset, Selectable)]
 #[diesel(table_name = user)]
 pub struct User {
     pub id: i32,
@@ -144,4 +145,17 @@ pub fn update(conn: &mut PgConnection, user: &mut User) -> QueryResult<usize> {
     diesel::update(user::table)
         .set(&user.for_update())
         .execute(conn)
+}
+
+pub fn read_user_by_session(
+    conn: &mut PgConnection,
+    session_id: i32,
+) -> Result<User, diesel::result::Error> {
+    user::table
+        .inner_join(session::table.on(user::id.eq(session::user_id)))
+        .filter(session::valid_until.gt(now()))
+        .filter(session::deleted_at.is_null())
+        .filter(user::deleted_at.is_null())
+        .select(User::as_select())
+        .first(conn)
 }

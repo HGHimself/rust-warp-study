@@ -22,13 +22,6 @@ use warp::{
     reject, Filter, Rejection, Reply,
 };
 
-/// An API error serializable to JSON.
-#[derive(Serialize)]
-pub struct ErrorMessage {
-    code: u16,
-    message: String,
-}
-
 pub async fn is_static(subdomain: Arc<Vec<String>>) -> Result<(), warp::Rejection> {
     log::info!("{:?}", subdomain);
     if subdomain.len() > 0 && subdomain[0] == "www" {
@@ -65,6 +58,10 @@ impl reject::Reject for DuplicateResource {}
 struct NotFound;
 impl reject::Reject for NotFound {}
 
+#[derive(Debug)]
+struct NotAuthorized;
+impl reject::Reject for NotAuthorized {}
+
 pub async fn handle_final_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
     let code;
     let message;
@@ -88,6 +85,8 @@ pub async fn handle_final_rejection(err: Rejection) -> Result<impl Reply, Infall
 pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Rejection> {
     if let Some(DuplicateResource) = err.find::<DuplicateResource>() {
         error_reply(StatusCode::BAD_REQUEST, String::from("DUPLICATE"))
+    } else if let Some(NotAuthorized) = err.find::<NotAuthorized>() {
+        error_reply(StatusCode::FORBIDDEN, String::from("FORBIDDEN"))
     } else if let Some(NotFound) = err.find::<NotFound>() {
         error_reply(StatusCode::NOT_FOUND, String::from("NOT_FOUND"))
     } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
