@@ -4,6 +4,7 @@ use std::convert::Infallible;
 pub async fn profile(
     context: Context,
     user: models::user::User,
+    _session: models::session::Session,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
 
@@ -41,6 +42,14 @@ pub async fn profile_with_cookie(
         warp::reply::html(profile_html),
         "Set-Cookie",
         format!("session={}", session.id),
+    ))
+}
+
+pub async fn logout() -> Result<impl warp::Reply, Infallible> {
+    Ok(warp::reply::with_header(
+        warp::reply::html(views::body::index()),
+        "Set-Cookie",
+        format!("session="),
     ))
 }
 

@@ -149,13 +149,13 @@ pub fn update(conn: &mut PgConnection, user: &mut User) -> QueryResult<usize> {
 
 pub fn read_user_by_session(
     conn: &mut PgConnection,
-    session_id: i32,
-) -> Result<User, diesel::result::Error> {
+    _session_id: i32,
+) -> Result<(User, models::session::Session), diesel::result::Error> {
     user::table
         .inner_join(session::table.on(user::id.eq(session::user_id)))
         .filter(session::valid_until.gt(now()))
         .filter(session::deleted_at.is_null())
         .filter(user::deleted_at.is_null())
-        .select(User::as_select())
+        .select((User::as_select(), models::session::Session::as_select()))
         .first(conn)
 }

@@ -13,7 +13,6 @@ pub mod views;
 extern crate diesel;
 
 use log::error;
-use serde_derive::Serialize;
 use std::convert::Infallible;
 use std::error::Error;
 use std::sync::Arc;
