@@ -1,5 +1,4 @@
-<h3>Login</h3>
-<form action='/user/login' method='POST'>
+<form action='/user/login' method='POST' class="centered">
     <fieldset>
         <legend>Login Credentials</legend>
         <div>
@@ -14,7 +13,9 @@
                 <input type='password' name='password' max=48 />
             </label>
         </div>
+        <div class="flex around">
+            <button type='submit'>Login</button>
+        </div>
+        <a href='/user/signup'>Need an account?</a>
     </fieldset>
-    <button type='submit'>Login</button>
-    <a href='/user/signup'>Need an account?</a>
 </form>

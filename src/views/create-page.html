@@ -2,7 +2,7 @@
 <a href="/user/1">Back to profile</a>
 <form action='/page' method='POST'>
     <fieldset>
-        <legend>Page Details</legend>
+        <legend>New Page Details</legend>
         <div>
             <label>
                 <span>Name:</span>
@@ -16,6 +16,8 @@
             </label>
         </div>
         <input type="hidden" value="1" name="user_id" />
+        <div class="flex around">
+            <button type='submit'>Create</button>
+        </div>
     </fieldset>
-    <button type='submit'>Submit</button>
 </form>

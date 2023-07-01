@@ -1,5 +1,4 @@
-<h3>Signup</h3>
-<form action='/user/signup' method='POST'>
+<form action='/user/signup' method='POST' class="centered">
     <fieldset>
         <legend>Signup Credentials</legend>
         <div>
@@ -20,7 +19,9 @@
                 <input type='password' name='confirm_password' max=48 />
             </label>
         </div>
+        <div class="flex around">
+            <button type='submit'>Signup</button>
+        </div>
+        <a href='/user/login'>Already have an account?</a>
     </fieldset>
-    <button type='submit'>Signup</button>
-    <a href='/user/login'>Already have an account?</a>
 </form>

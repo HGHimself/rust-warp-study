@@ -2,7 +2,7 @@ use crate::{
     api::{assets::assets, link::link_api, page::page, user::user},
     config::Config,
     db_conn::DbConn,
-    handle_final_rejection, handle_rejection, handlers, routes,
+    handle_final_rejection, handle_rejection, handlers, routes, views,
 };
 
 use tower_http::{
@@ -31,6 +31,9 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
     let context = Context::new(config.clone(), db_conn.clone());
 
     let end = assets!()
+        .or(warp::get()
+            .and(warp::path::end().or(warp::path::path("index.html")))
+            .map(|_| warp::reply::html(views::body::index())))
         .or(user!()
             .or(page!())
             .or(link_api!())

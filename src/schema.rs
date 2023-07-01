@@ -49,9 +49,4 @@ joinable!(page -> user (user_id));
 joinable!(page_link -> link (link_id));
 joinable!(page_link -> page (page_id));
 
-allow_tables_to_appear_in_same_query!(
-    link,
-    page,
-    page_link,
-    user,
-);
+allow_tables_to_appear_in_same_query!(link, page, page_link, user,);

@@ -1,3 +1,5 @@
+use std::include_str;
+
 pub fn document(title: String, content: String) -> String {
     let head = head(title);
     let header = header();
@@ -7,7 +9,9 @@ pub fn document(title: String, content: String) -> String {
 {head}
 <body>
 {header}
+<div class='content'>
 {content}
+</div>
 </body>
 </html>"
     )
@@ -31,7 +35,14 @@ pub fn header() -> String {
     String::from(
         "
     <header>
-        <h1 class='title'>digitheque.io</h1>
+    <h1 class='title'><a href='/' class='normalized'>digitheque.io</a></h1>
     </header>",
+    )
+}
+
+pub fn index() -> String {
+    document(
+        String::from("Digitheque"),
+        include_str!("index.html").to_string(),
     )
 }
