@@ -33,7 +33,7 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
     let end = assets!()
         .or(warp::get()
             .and(warp::path::end().or(warp::path::path("index.html")))
-            .map(|_| warp::reply::html(views::body::index())))
+            .map(|_| warp::reply::html(views::body::index(""))))
         .or(user!()
             .or(page!())
             .or(link_api!())

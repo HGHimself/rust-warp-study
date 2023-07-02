@@ -44,7 +44,6 @@ impl Page {
 pub struct NewPageApi {
     pub name: String,
     pub description: String,
-    pub user_id: i32,
 }
 
 #[derive(Insertable)]
@@ -59,11 +58,11 @@ pub struct NewPage {
 }
 
 impl NewPage {
-    pub fn new(new_page: NewPageApi) -> Self {
+    pub fn new(new_page: NewPageApi, user_id: i32) -> Self {
         NewPage {
             name: new_page.name,
             description: new_page.description,
-            user_id: new_page.user_id,
+            user_id: user_id,
             created_at: now(),
             updated_at: None,
             deleted_at: None,

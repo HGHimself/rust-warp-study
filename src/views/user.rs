@@ -8,10 +8,10 @@ pub fn profile(user: models::user::User) -> String {
     )
 }
 
-pub fn login_form() -> String {
+pub fn login_form(message: &str) -> String {
     views::body::document(
         String::from("Login"),
-        String::from(include_str!("login.html")),
+        String::from(include_str!("login.html")).replace("{error}", message),
     )
 }
 

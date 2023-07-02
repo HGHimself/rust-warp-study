@@ -24,33 +24,32 @@ body {
   font-family: "AkzidenzGrotesk", sans-serif;
   margin: 0;
   color: #000;
-  background-color: #f3fff4;
+  background-image: -webkit-linear-gradient(45deg, #ffb300 50%, #ffffff 50%);
   height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
 }
 
-h1, h2, h3, h4, h5, h6 {
+header {
+  grid-row: 1/2;
+}
+
+.error {
+  color: red;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
 }
 
 .content {
-  /* display: flex;
-  flex-direction: row;
-  justify-content: space-between; */
-  background-image: -webkit-linear-gradient(45deg, #ffee00 50%, #ffffff 50%);
-  height: 80vh;
-}
-
-.page-title {
-  width: max-content;
-  transform: rotate(45deg);
-  /* height: 54%; */
-  margin-top: 25%;
-}
-
-.page-content {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+  /* height: 85vh; */
 }
 
 .flex {
@@ -65,12 +64,14 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: space-around;
 }
 
-header {
-  padding-top: 1rem;
-  padding-bottom: 0.5rem;
+.title {
+  font-size: 4rem;
+  max-width: 500px;
+  margin: auto;
+  /* border: 1px solid currentColor; */
 }
 
-a::after {
+.external::after {
   position: relative;
   content: "°";
   margin-left: 0.1em;
@@ -86,15 +87,12 @@ a {
   text-decoration: none;
 }
 
-.title {
-  padding-left: 2rem;
-  font-size: 4rem;
-  max-width: 600px;
-  margin: auto;
+.page-item {
+  width: fit-content;
 }
 
-.fit-content {
-  max-width: fit-content;
+.page-title {
+  height: fit-content;
 }
 
 .favicon {
@@ -123,7 +121,8 @@ fieldset div label {
   align-items: center;
 }
 
-a.normalized, a:visited.normalized {
+a.normalized,
+a:visited.normalized {
   color: currentColor;
   text-decoration: none;
 }

@@ -83,19 +83,19 @@ pub async fn handle_final_rejection(err: Rejection) -> Result<impl Reply, Infall
 
 pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Rejection> {
     if let Some(DuplicateResource) = err.find::<DuplicateResource>() {
-        error_reply(StatusCode::BAD_REQUEST, String::from("DUPLICATE"))
+        error_reply_body(StatusCode::BAD_REQUEST, String::from("DUPLICATE"))
     } else if let Some(NotAuthorized) = err.find::<NotAuthorized>() {
-        error_reply(StatusCode::FORBIDDEN, String::from("FORBIDDEN"))
+        error_reply_body(StatusCode::FORBIDDEN, String::from("FORBIDDEN"))
     } else if let Some(NotFound) = err.find::<NotFound>() {
-        error_reply(StatusCode::NOT_FOUND, String::from("NOT_FOUND"))
+        error_reply_body(StatusCode::NOT_FOUND, String::from("NOT_FOUND"))
     } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
         let message = match e.source() {
             Some(cause) => format!("BAD_REQUEST: {cause}"),
             None => String::from("BAD_REQUEST"),
         };
-        error_reply(StatusCode::BAD_REQUEST, message)
+        error_reply_body(StatusCode::BAD_REQUEST, message)
     } else if let Some(_) = err.find::<reject::UnsupportedMediaType>() {
-        error_reply(
+        error_reply_body(
             StatusCode::UNSUPPORTED_MEDIA_TYPE,
             String::from("UNSUPPORTED_MEDIA_TYPE"),
         )
@@ -103,21 +103,28 @@ pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Rejection> {
         log::info!("Passing MethodNotAllowed error through!");
         Err(err)
     } else if err.is_not_found() {
-        log::info!("Passing NotFound error through!");
+        log::info!("Passing 404 error through!");
         Err(err)
     } else {
         // We should have expected this... Just log and say its a 500
         error!("unhandled rejection: {:?}", err);
-        error_reply(
+        error_reply_body(
             StatusCode::INTERNAL_SERVER_ERROR,
             String::from("UNHANDLED_REJECTION"),
         )
     }
 }
 
-fn error_reply(code: StatusCode, message: String) -> Result<impl Reply, Rejection> {
+pub fn error_reply_body(code: StatusCode, message: String) -> Result<impl Reply, Rejection> {
     log::error!("{}, {}", code, message);
 
-    let json = warp::reply::html(views::error::error(code, &message));
-    Ok(warp::reply::with_status(json, code))
+    let html = warp::reply::html(views::error::error(code, &message));
+    Ok(warp::reply::with_status(html, code))
+}
+
+pub fn error_reply(code: StatusCode, message: String) -> Result<impl Reply, Rejection> {
+    log::error!("{}, {}", code, message);
+
+    let html = warp::reply::html(message);
+    Ok(warp::reply::with_status(html, code))
 }

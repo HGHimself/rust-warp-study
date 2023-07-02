@@ -12,7 +12,7 @@ pub fn logout() -> BoxedFilter<()> {
     path_prefix()
         .and(warp::path("logout"))
         .and(warp::path::end())
-        .and(authenticate_cookie())
+        .and(read_cookie())
         .and_then(clear_session)
         .untuple_one()
         .boxed()
@@ -111,11 +111,10 @@ async fn with_new_session(
 
 async fn clear_session(
     context: Context,
-    user: models::user::User,
     session: models::session::Session,
 ) -> Result<(), warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
-    models::session::delete(&mut conn, &session);
+    models::session::delete(&mut conn, &session).map_err(|_| warp::reject::custom(NotFound))?;
     Ok(())
 }
 
@@ -131,12 +130,33 @@ async fn with_user_from_cookie(
     Ok((context, user, session))
 }
 
+async fn with_session_from_cookie(
+    context: Context,
+    session_id: i32,
+) -> Result<(Context, models::session::Session), warp::Rejection> {
+    let mut conn = context.db_conn.get_conn();
+
+    let session = models::session::read_by_id(&mut conn, session_id)
+        .map_err(|_| warp::reject::custom(NotFound))?;
+
+    Ok((context, session))
+}
+
 pub fn authenticate_cookie() -> BoxedFilter<(Context, models::user::User, models::session::Session)>
 {
     warp::any()
         .and(filters::ext::get::<Context>())
         .and(warp::cookie("session"))
         .and_then(with_user_from_cookie)
+        .untuple_one()
+        .boxed()
+}
+
+pub fn read_cookie() -> BoxedFilter<(Context, models::session::Session)> {
+    warp::any()
+        .and(filters::ext::get::<Context>())
+        .and(warp::cookie("session"))
+        .and_then(with_session_from_cookie)
         .untuple_one()
         .boxed()
 }

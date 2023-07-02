@@ -55,7 +55,6 @@ impl Link {
 pub struct NewLinkApi {
     pub url: String,
     pub name: String,
-    pub creator_user_id: i32,
 }
 
 #[derive(Insertable)]
@@ -69,10 +68,10 @@ pub struct NewLink {
 }
 
 impl NewLink {
-    pub fn new(new_link: NewLinkApi) -> Self {
+    pub fn new(new_link: NewLinkApi, creator_user_id: i32) -> Self {
         NewLink {
             url: new_link.url,
-            creator_user_id: new_link.creator_user_id,
+            creator_user_id: creator_user_id,
             created_at: now(),
             updated_at: None,
             deleted_at: None,

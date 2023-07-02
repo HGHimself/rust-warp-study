@@ -1,34 +1,30 @@
-<div class="page-title">
+<div class="item page-title">
     <h2>{page.name}</h2>
     <p>{page.description}</p>
 </div>
-<div class="page-content">
-    <div>
-        <h4>Links</h4>
-        <dl>
-            {links}
-        </dl>
-    </div>
-    <div>
-        <h4>Add a link</h4>
-        <form action='/page/{page.id}/link' method='POST'>
-            <fieldset>
-                <legend>Link Details</legend>
-                <div>
-                    <label>
-                        <span>Name:</span>
-                        <input type='name' name='name' required max=48 />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        <span>Url:</span>
-                        <input type='url' name='url' required max=2048 />
-                    </label>
-                </div>
-                <input type="hidden" value="1" name="creator_user_id" />
-            </fieldset>
+<div class="item">
+    <h4>Links</h4>
+    <dl>
+        {links}
+    </dl>
+</div>
+<div class="item">
+    <form action='/page/{page.id}/link' method='POST'>
+        <fieldset>
+            <legend>New Link</legend>
+            <div>
+                <label>
+                    <span>Name:</span>
+                    <input type='name' name='name' required max=48 />
+                </label>
+            </div>
+            <div>
+                <label>
+                    <span>URL:</span>
+                    <input type='url' name='url' required max=2048 />
+                </label>
+            </div>
             <button type='submit'>Submit</button>
-        </form>
-    </div>
+        </fieldset>
+    </form>
 </div>

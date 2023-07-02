@@ -5,6 +5,8 @@ use warp::{
     reject, Filter,
 };
 
+use super::user::authenticate_cookie;
+
 fn path_prefix() -> BoxedFilter<()> {
     warp::path("page").boxed()
 }
@@ -34,7 +36,7 @@ pub fn create() -> BoxedFilter<(Context, models::page::Page)> {
     path_prefix()
         .and(warp::post())
         .and(warp::path::end())
-        .and(filters::ext::get::<Context>())
+        .and(authenticate_cookie())
         .and(warp::body::form::<models::page::NewPageApi>())
         .and_then(insert_new_page)
         .untuple_one()
@@ -43,11 +45,13 @@ pub fn create() -> BoxedFilter<(Context, models::page::Page)> {
 
 async fn insert_new_page(
     context: Context,
+    user: models::user::User,
+    _session: models::session::Session,
     new_page: models::page::NewPageApi,
 ) -> Result<(Context, models::page::Page), warp::Rejection> {
     log::info!("Saving Page");
     let mut conn = context.db_conn.get_conn();
-    let page = models::page::NewPage::new(new_page)
+    let page = models::page::NewPage::new(new_page, user.id)
         .insert(&mut conn)
         .map_err(|e| {
             log::error!("{:?}", e);
@@ -73,10 +77,10 @@ pub fn create_form() -> BoxedFilter<()> {
 pub fn create_link() -> BoxedFilter<(Context, models::page::Page)> {
     path_prefix()
         .and(warp::post())
-        .and(filters::ext::get::<Context>())
         .and(warp::path::param::<i32>())
         .and(warp::path("link"))
         .and(warp::path::end())
+        .and(authenticate_cookie())
         .and(warp::body::form::<models::link::NewLinkApi>())
         .and_then(with_new_link)
         .untuple_one()
@@ -86,8 +90,10 @@ pub fn create_link() -> BoxedFilter<(Context, models::page::Page)> {
 }
 
 async fn with_new_link(
-    context: Context,
     page_id: i32,
+    context: Context,
+    user: models::user::User,
+    _session: models::session::Session,
     new_link: models::link::NewLinkApi,
 ) -> Result<(Context, i32), warp::Rejection> {
     log::info!("Saving Link");
@@ -95,7 +101,7 @@ async fn with_new_link(
     let name = new_link.name.clone();
 
     let link = match models::link::read_by_url(&mut conn, new_link.url.clone()) {
-        Err(diesel::NotFound) => models::link::NewLink::new(new_link)
+        Err(diesel::NotFound) => models::link::NewLink::new(new_link, user.id)
             .insert(&mut conn)
             .map_err(|_| reject::reject()),
         Ok(link) => Ok(link),

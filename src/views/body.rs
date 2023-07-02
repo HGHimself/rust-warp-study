@@ -9,9 +9,7 @@ pub fn document(title: String, content: String) -> String {
 {head}
 <body>
 {header}
-<div class='content'>
 {content}
-</div>
 </body>
 </html>"
     )
@@ -40,9 +38,11 @@ pub fn header() -> String {
     )
 }
 
-pub fn index() -> String {
+pub fn index(message: &str) -> String {
     document(
         String::from("Digitheque"),
-        include_str!("index.html").to_string(),
+        include_str!("index.html")
+            .to_string()
+            .replace("{message}", message),
     )
 }
