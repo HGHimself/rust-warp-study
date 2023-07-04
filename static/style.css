@@ -26,11 +26,11 @@ body {
   color: #000;
   background-image: -webkit-linear-gradient(45deg, #ffb300 50%, #ffffff 50%);
   height: 100vh;
-  display: grid;
+  /* display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr; */
 }
-
+/* 
 header {
   grid-row: 1/2;
 }
@@ -49,7 +49,7 @@ h6 {
 }
 
 .content {
-  /* height: 85vh; */
+  height: 85vh; 
 }
 
 .flex {
@@ -68,7 +68,7 @@ h6 {
   font-size: 4rem;
   max-width: 500px;
   margin: auto;
-  /* border: 1px solid currentColor; */
+  border: 1px solid currentColor;
 }
 
 .external::after {
@@ -77,7 +77,7 @@ h6 {
   margin-left: 0.1em;
   font-size: 90%;
   top: -0.1em;
-  /* color: rgb(153, 51, 51); */
+  color: rgb(153, 51, 51);
   font-feature-settings: "caps";
   font-variant-numeric: normal;
 }
@@ -157,4 +157,4 @@ button:active {
 
 h2 {
   font-size: 68px;
-}
+} */

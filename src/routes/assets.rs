@@ -6,6 +6,6 @@ pub fn get_static() -> BoxedFilter<(File,)> {
         // .and(with_subdomain())
         //     .and_then(is_static)
         // .untuple_one()
-        .and(warp::fs::dir("./www/static"))
+        .and(warp::fs::dir("./static"))
         .boxed()
 }
