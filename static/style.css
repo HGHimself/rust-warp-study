@@ -34,6 +34,22 @@ body {
 .error {
   color: rgb(255, 0, 0);
 }
+
+.title {
+  font-size: 68px;
+  margin: 0;
+  padding-left: 1rem;
+}
+
+header {
+  display: flex;
+  align-items: center;
+}
+
+.normalized {
+  color: currentColor;
+  text-decoration: none;
+}
 /* 
 header {
   grid-row: 1/2;

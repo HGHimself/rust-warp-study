@@ -1,7 +1,7 @@
 use crate::{
     models,
     schema::{link, page_link},
-    utils::now,
+    utils::{now, sanitize_html},
 };
 use chrono::naive::NaiveDateTime;
 use diesel::prelude::*;
@@ -70,7 +70,7 @@ pub struct NewLink {
 impl NewLink {
     pub fn new(new_link: NewLinkApi, creator_user_id: i32) -> Self {
         NewLink {
-            url: new_link.url,
+            url: sanitize_html(&new_link.url),
             creator_user_id: creator_user_id,
             created_at: now(),
             updated_at: None,

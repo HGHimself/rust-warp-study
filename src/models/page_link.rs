@@ -1,4 +1,8 @@
-use crate::{models, schema::page_link, utils::now};
+use crate::{
+    models,
+    schema::page_link,
+    utils::{now, sanitize_html},
+};
 use chrono::naive::NaiveDateTime;
 use diesel::prelude::*;
 
@@ -39,7 +43,7 @@ impl NewPageLink {
         Self {
             page_id: page_id,
             link_id: link_id,
-            name: name,
+            name: sanitize_html(&name),
             created_at: now(),
             updated_at: None,
             deleted_at: None,

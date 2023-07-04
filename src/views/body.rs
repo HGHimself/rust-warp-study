@@ -37,8 +37,10 @@ pub fn header() -> String {
     String::from(
         "
     <header>
-    <h1 class='title'><a href='/' class='normalized'>digitheque.io</a></h1>
-    <a href='/user/login'>Login</a>
+        <h1 class='title'><a href='/' class='normalized'>digitheque.io</a></h1>
+        <ul>
+            <li><a href='/user/login'>Login</a></li>
+        </ul>
     </header>",
     )
 }
@@ -47,9 +49,11 @@ pub fn header_authenticated(user: &models::user::User) -> String {
     format!(
         "
     <header>
-    <h1 class='title'><a href='/' class='normalized'>digitheque.io</a></h1>
-    <a href='/user'>{}</a>
-    <a href='/user/logout'>Logout</a>
+        <h1 class='title'><a href='/' class='normalized'>digitheque.io</a></h1>
+        <ul>
+            <li><a href='/user'>{}</a></li>
+            <li><a href='/user/logout'>Logout</a></li>
+        </ul>
     </header>",
         user.username
     )

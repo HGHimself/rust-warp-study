@@ -51,8 +51,7 @@ async fn with_page(
 ) -> Result<(Context, models::user::User, models::page::Page), warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
     log::info!("Looking for page with id of {}", id);
-    let page = models::page::read_by_id(&mut conn, id)
-        .map_err(|_| reject::custom(NotFound))?;
+    let page = models::page::read_by_id(&mut conn, id).map_err(|_| reject::custom(NotFound))?;
     Ok((context, user, page))
 }
 

@@ -1,6 +1,6 @@
 # Digitheque.io
 
-### A social network working off of the core principles of the internet rather than human pyscology. Designed to enable exploration rather than enforce emotional interation.
+##### A social network working off of the core principles of the internet rather than human pyscology. Designed to enable exploration rather than enforce emotional interation.
 
 ## Quick Start
 To run this code, you need the following:

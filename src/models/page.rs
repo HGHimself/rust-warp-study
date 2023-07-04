@@ -1,7 +1,7 @@
 use crate::{
     models,
     schema::{page, page_link},
-    utils::now,
+    utils::{now, sanitize_html},
 };
 use chrono::naive::NaiveDateTime;
 use diesel::prelude::*;
@@ -60,8 +60,8 @@ pub struct NewPage {
 impl NewPage {
     pub fn new(new_page: NewPageApi, user_id: i32) -> Self {
         NewPage {
-            name: new_page.name,
-            description: new_page.description,
+            name: sanitize_html(&new_page.name),
+            description: sanitize_html(&new_page.description),
             user_id: user_id,
             created_at: now(),
             updated_at: None,

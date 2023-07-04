@@ -1,5 +1,6 @@
 use chrono::prelude::*;
 use pwhash::bcrypt;
+use sanitize_html::{rules::predefined::DEFAULT, sanitize_str};
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -27,6 +28,10 @@ pub fn encrypt(password: &str) -> String {
 
 pub fn verify(password: &str, hashed: &str) -> bool {
     bcrypt::verify(password, hashed)
+}
+
+pub fn sanitize_html(input: &str) -> String {
+    sanitize_str(&DEFAULT, input).unwrap()
 }
 
 #[test]

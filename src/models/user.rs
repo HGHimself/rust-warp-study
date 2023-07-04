@@ -1,7 +1,7 @@
 use crate::{
     models,
     schema::{session, user},
-    utils::{encrypt, now, verify},
+    utils::{encrypt, now, sanitize_html, verify},
 };
 use chrono::naive::NaiveDateTime;
 use diesel::prelude::*;
@@ -47,7 +47,7 @@ pub struct NewUserApi {
 impl Into<UserCredentialsEncrypted> for NewUserApi {
     fn into(self) -> UserCredentialsEncrypted {
         UserCredentialsEncrypted {
-            username: self.username,
+            username: sanitize_html(&self.username),
             password: encrypt(&self.password),
         }
     }

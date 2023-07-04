@@ -36,7 +36,9 @@ pub async fn view_authenticated(
             warp::reject::not_found()
         })?
         .iter()
-        .map(|(link, page_link)| page.inject_values(&views::link::link_authenticated(link, page_link)))
+        .map(|(link, page_link)| {
+            page.inject_values(&views::link::link_authenticated(link, page_link))
+        })
         .collect::<String>();
 
     let page_html = views::page::view_authenticated(user, page, "").replace("{links}", &links);
