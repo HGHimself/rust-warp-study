@@ -29,3 +29,8 @@ The server logic is a combination of [warp] and [tower]. Tower takes care of our
 The request->response mapping lives in the `/api` directory. Here you can see the high level logic that tests requests and directs them to a response or error handler.
 
 Diesel is our ORM of choice. We simply use it to write our SQL queries.
+
+
+## TBD
+- [ ] sanitize html
+- [ ] design lol
