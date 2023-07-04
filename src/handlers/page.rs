@@ -23,6 +23,27 @@ pub async fn view(
     Ok(warp::reply::html(page_html))
 }
 
+pub async fn view_authenticated(
+    context: Context,
+    user: models::user::User,
+    page: models::page::Page,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let mut conn = context.db_conn.get_conn();
+
+    let links = models::link::read_links_by_page(&mut conn, &page)
+        .map_err(|e| {
+            log::error!("{:?}", e);
+            warp::reject::not_found()
+        })?
+        .iter()
+        .map(|(link, page_link)| page.inject_values(&views::link::link_authenticated(link, page_link)))
+        .collect::<String>();
+
+    let page_html = views::page::view_authenticated(user, page, "").replace("{links}", &links);
+
+    Ok(warp::reply::html(page_html))
+}
+
 pub async fn create_page(
     _context: Context,
     user: models::user::User,

@@ -4,3 +4,7 @@
         <span>{page_link.name}</span>
     </a>
 </dt>
+<dd>
+    <p>Options:<a href="/link/{link.id}">Explore</a>;
+    <a hx-delete="/page/{page.id}/link/{link.id}" hx-target="body">Remove</a>;</p>
+</dd>

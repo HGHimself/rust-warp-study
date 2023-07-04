@@ -1,4 +1,5 @@
 use crate::{models, server::Context, DuplicateResource, NotAuthorized, NotFound};
+use diesel::result::{DatabaseErrorKind, Error::DatabaseError};
 use warp::{
     filters::{self, BoxedFilter},
     reject, Filter,
@@ -68,7 +69,12 @@ async fn insert_new_user(
         .insert(&mut conn)
         .map_err(|e| {
             log::error!("{:?}", e);
-            reject::reject()
+            match e {
+                DatabaseError(DatabaseErrorKind::UniqueViolation, _) => {
+                    reject::custom(DuplicateResource)
+                }
+                _ => reject::reject(),
+            }
         })?;
     log::info!("Saved User");
     Ok((context, user))

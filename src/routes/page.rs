@@ -8,7 +8,18 @@ fn path_prefix() -> BoxedFilter<()> {
     warp::path("page").boxed()
 }
 
-pub fn get_by_id() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
+pub fn get() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
+    path_prefix()
+        .and(warp::get())
+        .and(warp::path::param::<i32>())
+        .and(warp::path::end())
+        .and(routes::user::authenticate_cookie())
+        .and_then(with_page)
+        .untuple_one()
+        .boxed()
+}
+
+pub fn get_authenticated() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
     path_prefix()
         .and(warp::get())
         .and(warp::path::param::<i32>())
@@ -28,6 +39,19 @@ async fn with_authenticated_page(
     let mut conn = context.db_conn.get_conn();
     log::info!("Looking for page with id of {}", id);
     let page = models::page::read_by_id_and_user_id(&mut conn, id, user.id)
+        .map_err(|_| reject::custom(NotFound))?;
+    Ok((context, user, page))
+}
+
+async fn with_page(
+    id: i32,
+    context: Context,
+    user: models::user::User,
+    _session: models::session::Session,
+) -> Result<(Context, models::user::User, models::page::Page), warp::Rejection> {
+    let mut conn = context.db_conn.get_conn();
+    log::info!("Looking for page with id of {}", id);
+    let page = models::page::read_by_id(&mut conn, id)
         .map_err(|_| reject::custom(NotFound))?;
     Ok((context, user, page))
 }

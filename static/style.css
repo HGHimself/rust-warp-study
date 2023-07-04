@@ -30,6 +30,10 @@ body {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr; */
 }
+
+.error {
+  color: rgb(255, 0, 0);
+}
 /* 
 header {
   grid-row: 1/2;
