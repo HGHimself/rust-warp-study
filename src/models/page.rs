@@ -7,7 +7,7 @@ use chrono::naive::NaiveDateTime;
 use diesel::prelude::*;
 use serde::Deserialize;
 
-#[derive(Debug, Identifiable, Selectable, Queryable, AsChangeset)]
+#[derive(Clone, Debug, Identifiable, Selectable, Queryable, AsChangeset)]
 #[diesel(table_name = page)]
 pub struct Page {
     pub id: i32,
@@ -88,6 +88,18 @@ pub fn read_by_id(conn: &mut PgConnection, id: i32) -> Result<Page, diesel::resu
     page::table
         .filter(page::id.eq(id))
         .filter(page::deleted_at.is_null())
+        .first::<Page>(conn)
+}
+
+pub fn read_by_id_and_user_id(
+    conn: &mut PgConnection,
+    id: i32,
+    user_id: i32,
+) -> Result<Page, diesel::result::Error> {
+    page::table
+        .filter(page::id.eq(id))
+        .filter(page::deleted_at.is_null())
+        .filter(page::user_id.eq(user_id))
         .first::<Page>(conn)
 }
 

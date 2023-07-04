@@ -2,6 +2,7 @@ use diesel::pg::PgConnection;
 use diesel::r2d2::{ConnectionManager, Pool, PooledConnection};
 use log::info;
 
+#[derive(Clone, Debug)]
 pub struct DbConn {
     pool: Pool<ConnectionManager<PgConnection>>,
 }

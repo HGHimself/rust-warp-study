@@ -7,7 +7,7 @@ use chrono::naive::NaiveDateTime;
 use diesel::prelude::*;
 use serde::Deserialize;
 
-#[derive(Debug, Identifiable, Queryable, AsChangeset, Selectable)]
+#[derive(Clone, Debug, Identifiable, Queryable, AsChangeset, Selectable)]
 #[diesel(table_name = user)]
 pub struct User {
     pub id: i32,

@@ -4,14 +4,10 @@ use warp::{
     reject, Filter,
 };
 
-fn path_prefix() -> BoxedFilter<()> {
-    warp::path("user").boxed()
-}
-
 pub fn logout() -> BoxedFilter<()> {
-    path_prefix()
-        .and(warp::path("logout"))
+    warp::path("logout")
         .and(warp::path::end())
+        .and(warp::get())
         .and(read_cookie())
         .and_then(clear_session)
         .untuple_one()
@@ -19,8 +15,7 @@ pub fn logout() -> BoxedFilter<()> {
 }
 
 pub fn signup() -> BoxedFilter<(Context, models::user::User, models::session::Session)> {
-    path_prefix()
-        .and(warp::path("signup"))
+    warp::path("signup")
         .and(warp::path::end())
         .and(warp::post())
         .and(filters::ext::get::<Context>())
@@ -33,8 +28,7 @@ pub fn signup() -> BoxedFilter<(Context, models::user::User, models::session::Se
 }
 
 pub fn login() -> BoxedFilter<(Context, models::user::User, models::session::Session)> {
-    path_prefix()
-        .and(warp::path("login"))
+    warp::path("login")
         .and(warp::path::end())
         .and(warp::post())
         .and(filters::ext::get::<Context>())
@@ -47,9 +41,8 @@ pub fn login() -> BoxedFilter<(Context, models::user::User, models::session::Ses
 }
 
 pub fn get_by_cookie() -> BoxedFilter<(Context, models::user::User, models::session::Session)> {
-    path_prefix()
+    warp::path::end()
         .and(warp::get())
-        .and(warp::path::end())
         .and(authenticate_cookie())
         .boxed()
 }
@@ -82,18 +75,16 @@ async fn insert_new_user(
 }
 
 pub fn signup_form() -> BoxedFilter<()> {
-    path_prefix()
-        .and(warp::get())
-        .and(warp::path("signup"))
+    warp::path("signup")
         .and(warp::path::end())
+        .and(warp::get())
         .boxed()
 }
 
 pub fn login_form() -> BoxedFilter<()> {
-    path_prefix()
-        .and(warp::get())
-        .and(warp::path("login"))
+    warp::path("login")
         .and(warp::path::end())
+        .and(warp::get())
         .boxed()
 }
 

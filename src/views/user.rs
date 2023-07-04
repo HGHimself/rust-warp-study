@@ -2,8 +2,9 @@ use crate::{models, views};
 use std::include_str;
 
 pub fn profile(user: models::user::User) -> String {
-    views::body::document(
+    views::body::document_authenticated(
         String::from("Profile"),
+        &user,
         user.inject_values(include_str!("profile.html")),
     )
 }
@@ -15,9 +16,9 @@ pub fn login_form(message: &str) -> String {
     )
 }
 
-pub fn signup_form() -> String {
+pub fn signup_form(message: &str) -> String {
     views::body::document(
         String::from("Signup"),
-        String::from(include_str!("signup.html")),
+        String::from(include_str!("signup.html")).replace("{error}", message),
     )
 }

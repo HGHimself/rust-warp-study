@@ -1,4 +1,4 @@
-use crate::{error_reply, models, server::Context, views, NotFound};
+use crate::{error_reply, models, server::Context, views, DuplicateResource, NotFound};
 use hyper::StatusCode;
 use std::convert::Infallible;
 use warp::{reject, Rejection, Reply};
@@ -56,7 +56,7 @@ pub async fn logout() -> Result<impl warp::Reply, Infallible> {
 }
 
 pub async fn signup_form() -> Result<impl warp::Reply, Infallible> {
-    Ok(warp::reply::html(views::user::signup_form()))
+    Ok(warp::reply::html(views::user::signup_form("")))
 }
 
 pub async fn login_form() -> Result<impl warp::Reply, Infallible> {
@@ -75,6 +75,15 @@ pub async fn handle_login_errors(err: Rejection) -> Result<impl Reply, Rejection
 pub async fn handle_logout_errors(err: Rejection) -> Result<impl Reply, Rejection> {
     if let Some(_) = err.find::<reject::MissingCookie>() {
         let html = views::body::index("Error: Not logged in to begin with");
+        error_reply(StatusCode::BAD_REQUEST, html)
+    } else {
+        Err(err)
+    }
+}
+
+pub async fn handle_signup_errors(err: Rejection) -> Result<impl Reply, Rejection> {
+    if let Some(_) = err.find::<DuplicateResource>() {
+        let html = views::user::signup_form("Error: Username already in use");
         error_reply(StatusCode::BAD_REQUEST, html)
     } else {
         Err(err)

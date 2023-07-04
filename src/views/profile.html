@@ -1,40 +1,5 @@
 <h3>Your Profile</h3>
-<form action='/user' method='POST'>
-    <fieldset disabled>
-        <legend>Personal Details</legend>
-        <div>
-            <label>
-                <span>First Name:</span>
-                <input type='text' name='first_name' value='{user.first_name}' required max=48 />
-            </label>
-        </div>
-        <div>
-            <label>
-                <span>Middle Name:</span>
-                <input type='text' name='middle_name' value='{user.middle_name}' max=48 />
-            </label>
-        </div>
-        <div>
-            <label>
-                <span>Last Name:</span>
-                <input type='text' name='last_name' value='{user.last_name}' required max=48 />
-            </label>
-        </div>
-        <div>
-            <label>
-                <span>Email:</span>
-                <input type='email' name='email' value='{user.email}' required max=128 />
-            </label>
-        </div>
-        <div>
-            <label>
-                <span>Birth Date:</span>
-                <input type='date' name='birthday' value="{user.birthday}" required max=48 />
-            </label>
-        </div>
-    </fieldset>
-    <button type='submit'>Submit</button>
-</form>
+<h6>Welcome {user.username}</h6>
 <h4>Your pages</h4>
 {pages}
 <a href="/page/create">click here to create a page</a>

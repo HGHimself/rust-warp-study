@@ -9,7 +9,7 @@ const MAX_INFLIGHT_REQUESTS: usize = 100;
 // the rest wait until a permit opens up
 const MAX_CONNS: usize = 100;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Config {
     pub app_addr: String,
     pub max_conn: usize,

@@ -26,7 +26,6 @@ async fn main() {
     log::info!("🐙 Booting up the API!");
 
     let config = Arc::new(Config::new(false));
-    // let webauthn = Arc::new(Webauthn::new());
 
     let socket_address = config
         .clone()

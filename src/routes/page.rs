@@ -1,9 +1,6 @@
-use crate::{models, server::Context, DuplicateResource, NotFound};
+use crate::{models, routes, server::Context, DuplicateResourceWithData, NotFound};
 use diesel::result::{DatabaseErrorKind, Error::DatabaseError};
-use warp::{
-    filters::{self, BoxedFilter},
-    reject, Filter,
-};
+use warp::{filters::BoxedFilter, reject, Filter};
 
 use super::user::authenticate_cookie;
 
@@ -11,28 +8,31 @@ fn path_prefix() -> BoxedFilter<()> {
     warp::path("page").boxed()
 }
 
-pub fn get_by_id() -> BoxedFilter<(Context, models::page::Page)> {
+pub fn get_by_id() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
     path_prefix()
         .and(warp::get())
-        .and(filters::ext::get::<Context>())
         .and(warp::path::param::<i32>())
         .and(warp::path::end())
-        .and_then(with_page)
+        .and(routes::user::authenticate_cookie())
+        .and_then(with_authenticated_page)
         .untuple_one()
         .boxed()
 }
 
-async fn with_page(
-    context: Context,
+async fn with_authenticated_page(
     id: i32,
-) -> Result<(Context, models::page::Page), warp::Rejection> {
+    context: Context,
+    user: models::user::User,
+    _session: models::session::Session,
+) -> Result<(Context, models::user::User, models::page::Page), warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
     log::info!("Looking for page with id of {}", id);
-    let page = models::page::read_by_id(&mut conn, id).map_err(|_| reject::custom(NotFound))?;
-    Ok((context, page))
+    let page = models::page::read_by_id_and_user_id(&mut conn, id, user.id)
+        .map_err(|_| reject::custom(NotFound))?;
+    Ok((context, user, page))
 }
 
-pub fn create() -> BoxedFilter<(Context, models::page::Page)> {
+pub fn create() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
     path_prefix()
         .and(warp::post())
         .and(warp::path::end())
@@ -48,7 +48,7 @@ async fn insert_new_page(
     user: models::user::User,
     _session: models::session::Session,
     new_page: models::page::NewPageApi,
-) -> Result<(Context, models::page::Page), warp::Rejection> {
+) -> Result<(Context, models::user::User, models::page::Page), warp::Rejection> {
     log::info!("Saving Page");
     let mut conn = context.db_conn.get_conn();
     let page = models::page::NewPage::new(new_page, user.id)
@@ -57,45 +57,49 @@ async fn insert_new_page(
             log::error!("{:?}", e);
             match e {
                 DatabaseError(DatabaseErrorKind::UniqueViolation, _) => {
-                    reject::custom(DuplicateResource)
+                    reject::custom(DuplicateResourceWithData {
+                        context: Some(context.clone()),
+                        user: Some(user.clone()),
+                        page: None,
+                    })
                 }
                 _ => reject::reject(),
             }
         })?;
     log::info!("Saved Page");
-    Ok((context, page))
+    Ok((context, user, page))
 }
 
-pub fn create_form() -> BoxedFilter<()> {
+pub fn create_form() -> BoxedFilter<(Context, models::user::User, models::session::Session)> {
     path_prefix()
         .and(warp::get())
         .and(warp::path("create"))
         .and(warp::path::end())
+        .and(routes::user::authenticate_cookie())
         .boxed()
 }
 
-pub fn create_link() -> BoxedFilter<(Context, models::page::Page)> {
+pub fn create_link() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
     path_prefix()
         .and(warp::post())
         .and(warp::path::param::<i32>())
         .and(warp::path("link"))
         .and(warp::path::end())
         .and(authenticate_cookie())
+        .and_then(with_authenticated_page)
+        .untuple_one()
         .and(warp::body::form::<models::link::NewLinkApi>())
         .and_then(with_new_link)
-        .untuple_one()
-        .and_then(with_page)
         .untuple_one()
         .boxed()
 }
 
 async fn with_new_link(
-    page_id: i32,
     context: Context,
     user: models::user::User,
-    _session: models::session::Session,
+    page: models::page::Page,
     new_link: models::link::NewLinkApi,
-) -> Result<(Context, i32), warp::Rejection> {
+) -> Result<(Context, models::user::User, models::page::Page), warp::Rejection> {
     log::info!("Saving Link");
     let mut conn = context.db_conn.get_conn();
     let name = new_link.name.clone();
@@ -108,44 +112,49 @@ async fn with_new_link(
         _ => Err(warp::reject()),
     }?;
 
-    models::page_link::NewPageLink::new(page_id, link.id, name)
+    models::page_link::NewPageLink::new(page.id, link.id, name)
         .insert(&mut conn)
         .map_err(|e| match e {
             DatabaseError(DatabaseErrorKind::UniqueViolation, _) => {
-                reject::custom(DuplicateResource)
+                reject::custom(DuplicateResourceWithData {
+                    context: Some(context.clone()),
+                    user: Some(user.clone()),
+                    page: Some(page.clone()),
+                })
             }
             _ => reject::reject(),
         })?;
 
     log::info!("Saved Link");
-    Ok((context, page_id))
+    Ok((context, user, page))
 }
 
-pub fn remove_link() -> BoxedFilter<(Context, models::page::Page)> {
+pub fn remove_link() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
     path_prefix()
         .and(warp::delete())
-        .and(filters::ext::get::<Context>())
         .and(warp::path::param::<i32>())
         .and(warp::path("link"))
+        .and(authenticate_cookie())
+        .and_then(with_authenticated_page)
+        .untuple_one()
         .and(warp::path::param::<i32>())
         .and(warp::path::end())
         .and_then(with_remove_link)
-        .untuple_one()
-        .and_then(with_page)
         .untuple_one()
         .boxed()
 }
 
 async fn with_remove_link(
     context: Context,
-    page_id: i32,
+    user: models::user::User,
+    page: models::page::Page,
     link_id: i32,
-) -> Result<(Context, i32), warp::Rejection> {
+) -> Result<(Context, models::user::User, models::page::Page), warp::Rejection> {
     log::info!("Removing PageLink");
     let mut conn = context.db_conn.get_conn();
-    models::page_link::remove_link_by_page_id_and_link_id(&mut conn, page_id, link_id)
+    models::page_link::remove_link_by_page_id_and_link_id(&mut conn, page.id, link_id)
         .map_err(|_| reject::custom(NotFound))?;
 
     log::info!("Removed PageLink");
-    Ok((context, page_id))
+    Ok((context, user, page))
 }

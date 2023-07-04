@@ -1,3 +1,5 @@
+#![feature(let_chains)]
+
 pub mod api;
 pub mod config;
 pub mod db_conn;
@@ -13,6 +15,7 @@ pub mod views;
 extern crate diesel;
 
 use log::error;
+use server::Context;
 use std::convert::Infallible;
 use std::error::Error;
 use std::sync::Arc;
@@ -54,6 +57,14 @@ struct DuplicateResource;
 impl reject::Reject for DuplicateResource {}
 
 #[derive(Debug)]
+struct DuplicateResourceWithData {
+    context: Option<Context>,
+    user: Option<models::user::User>,
+    page: Option<models::page::Page>,
+}
+impl reject::Reject for DuplicateResourceWithData {}
+
+#[derive(Debug)]
 struct NotFound;
 impl reject::Reject for NotFound {}
 
@@ -82,10 +93,14 @@ pub async fn handle_final_rejection(err: Rejection) -> Result<impl Reply, Infall
 }
 
 pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Rejection> {
-    if let Some(DuplicateResource) = err.find::<DuplicateResource>() {
+    if let Some(_) = err.find::<DuplicateResource>() {
         error_reply_body(StatusCode::BAD_REQUEST, String::from("DUPLICATE"))
-    } else if let Some(NotAuthorized) = err.find::<NotAuthorized>() {
-        error_reply_body(StatusCode::FORBIDDEN, String::from("FORBIDDEN"))
+    } else if let Some(_) = err.find::<NotAuthorized>() {
+        let html = String::from("You are not authorized to do this");
+        error_reply_body(StatusCode::FORBIDDEN, html)
+    } else if let Some(_) = err.find::<reject::MissingCookie>() {
+        let html = String::from("Try logging in");
+        error_reply_body(StatusCode::FORBIDDEN, html)
     } else if let Some(NotFound) = err.find::<NotFound>() {
         error_reply_body(StatusCode::NOT_FOUND, String::from("NOT_FOUND"))
     } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
