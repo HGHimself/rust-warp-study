@@ -70,7 +70,7 @@ pub async fn handle_create_link_error(
         .map(|(link, page_link)| page.inject_values(&views::link::link(link, page_link)))
         .collect::<String>();
 
-    let html = views::page::view(user, page, "Error: Link already exists in this page").replace("{links}", &links);
+    let html = views::page::view_authenticated(user, page, "Error: Link already exists in this page").replace("{links}", &links);
             error_reply(StatusCode::CONFLICT, html)
         } else {
             error_reply(StatusCode::INTERNAL_SERVER_ERROR, views::error::error(StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR"))
