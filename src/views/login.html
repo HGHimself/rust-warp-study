@@ -1,22 +1,19 @@
-<form action='/user/login' method='POST' class="centered">
-    <fieldset>
-        <legend>Login Credentials</legend>
-        <div>
+<section class="login">
+    <h6>Login Form</h6>
+    <form action='/user/login' method='POST'>
+        <fieldset class="login-fields">
+            <legend>User Credentials</legend>
+            <a href='/user/signup'>Need an account?</a>
             <label>
                 <span>Username:</span>
                 <input type='text' name='username' required max=48 />
             </label>
-        </div>
-        <div>
             <label>
                 <span>Password:</span>
                 <input type='password' name='password' max=48 />
             </label>
-        </div>
-        <div class="error">{error}</div>
-        <div class="flex around">
+            <div class="error">{error}</div>
             <button type='submit'>Login</button>
-        </div>
-        <a href='/user/signup'>Need an account?</a>
-    </fieldset>
-</form>
+        </fieldset>
+    </form>
+</section>

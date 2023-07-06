@@ -1,28 +1,23 @@
-<form action='/user/signup' method='POST' class="centered">
-    <fieldset>
-        <legend>Signup Credentials</legend>
-        <div>
+<section class="signup">
+    <h6>Signup Form</h6>
+    <form action='/user/signup' method='POST'>
+        <fieldset class="signup-fields">
+            <legend>User Credentials</legend>
+            <a href='/user/login'>Already have an account?</a>
             <label>
                 <span>Username:</span>
                 <input type='text' name='username' required max=48 />
             </label>
-        </div>
-        <div>
             <label>
                 <span>Password:</span>
                 <input type='password' name='password' max=48 />
             </label>
-        </div>
-        <div>
             <label>
                 <span>Confirm Password:</span>
                 <input type='password' name='confirm_password' max=48 />
             </label>
-        </div>
-        <div class="error">{error}</div>
-        <div class="flex around">
+            <div class="error">{error}</div>
             <button type='submit'>Signup</button>
-        </div>
-        <a href='/user/login'>Already have an account?</a>
-    </fieldset>
-</form>
+        </fieldset>
+    </form>
+</section>
