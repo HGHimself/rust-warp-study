@@ -12,6 +12,7 @@ use tower_http::{
     trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer},
     LatencyUnit,
 };
+use proc_macro2::Span;
 
 use bytes::Bytes;
 use hyper::{header, server::conn::AddrStream, service::make_service_fn, Body, Response, Server};

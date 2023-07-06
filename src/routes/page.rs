@@ -2,17 +2,10 @@ use crate::{models, routes, server::Context, DuplicateResourceWithData, NotFound
 use diesel::result::{DatabaseErrorKind, Error::DatabaseError};
 use warp::{filters::BoxedFilter, reject, Filter};
 
-use super::user::authenticate_cookie;
-
-fn path_prefix() -> BoxedFilter<()> {
-    warp::path("page").boxed()
-}
-
 pub fn get() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
-    path_prefix()
+    warp::path::param::<i32>()
+    .and(warp::path::end())
         .and(warp::get())
-        .and(warp::path::param::<i32>())
-        .and(warp::path::end())
         .and(routes::user::authenticate_cookie())
         .and_then(with_page)
         .untuple_one()
@@ -20,10 +13,9 @@ pub fn get() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
 }
 
 pub fn get_authenticated() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
-    path_prefix()
-        .and(warp::get())
-        .and(warp::path::param::<i32>())
+    warp::path::param::<i32>()
         .and(warp::path::end())
+    .and(warp::get())
         .and(routes::user::authenticate_cookie())
         .and_then(with_authenticated_page)
         .untuple_one()
@@ -56,10 +48,9 @@ async fn with_page(
 }
 
 pub fn create() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
-    path_prefix()
+    warp::path::end()
         .and(warp::post())
-        .and(warp::path::end())
-        .and(authenticate_cookie())
+        .and(routes::user::authenticate_cookie())
         .and(warp::body::form::<models::page::NewPageApi>())
         .and_then(insert_new_page)
         .untuple_one()
@@ -94,21 +85,21 @@ async fn insert_new_page(
 }
 
 pub fn create_form() -> BoxedFilter<(Context, models::user::User, models::session::Session)> {
-    path_prefix()
-        .and(warp::get())
-        .and(warp::path("create"))
+    warp::path("create")
         .and(warp::path::end())
+        .and(warp::get())
+        
         .and(routes::user::authenticate_cookie())
         .boxed()
 }
 
 pub fn create_link() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
-    path_prefix()
-        .and(warp::post())
-        .and(warp::path::param::<i32>())
+    warp::path::param::<i32>()
         .and(warp::path("link"))
         .and(warp::path::end())
-        .and(authenticate_cookie())
+        .and(warp::post())
+        
+        .and(routes::user::authenticate_cookie())
         .and_then(with_authenticated_page)
         .untuple_one()
         .and(warp::body::form::<models::link::NewLinkApi>())
@@ -153,11 +144,10 @@ async fn with_new_link(
 }
 
 pub fn remove_link() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
-    path_prefix()
-        .and(warp::delete())
+    warp::delete()
         .and(warp::path::param::<i32>())
         .and(warp::path("link"))
-        .and(authenticate_cookie())
+        .and(routes::user::authenticate_cookie())
         .and_then(with_authenticated_page)
         .untuple_one()
         .and(warp::path::param::<i32>())

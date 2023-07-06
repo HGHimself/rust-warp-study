@@ -1,5 +1,6 @@
 macro_rules! page {
     () => {
+        warp::path("page").and(
         routes::page::get_authenticated()
             .and_then(handlers::page::view_authenticated)
             .or(routes::page::get().and_then(handlers::page::view))
@@ -11,7 +12,7 @@ macro_rules! page {
                 .and_then(handlers::page::view_authenticated)
                 .recover(handlers::page::handle_create_page_error))
             .or(routes::page::remove_link().and_then(handlers::page::view_authenticated))
-            .recover(handle_rejection)
+            .recover(handle_rejection))
             .with(warp::trace::named("page"))
     };
 }
