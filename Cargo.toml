@@ -13,6 +13,7 @@ dotenv = "0.15.0"
 env_logger = "0.8.4"
 hyper = "0.14.26"
 log = "0.4.14"
+proc-macro2 = "1.0.63"
 pwhash = "1.0.0"
 sanitize_html = "0.7.0"
 serde = { version = "1.0", features = ["derive"] }
