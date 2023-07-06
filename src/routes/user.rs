@@ -120,7 +120,7 @@ async fn with_user_from_cookie(
     session_id: i32,
 ) -> Result<(Context, models::user::User, models::session::Session), warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
-
+    log::info!("Session ID: {}", session_id);
     let (user, session) = models::user::read_user_by_session(&mut conn, session_id)
         .map_err(|_| warp::reject::custom(NotAuthorized))?;
     log::info!("Recognized user {:?} from {:?}", user, session);
