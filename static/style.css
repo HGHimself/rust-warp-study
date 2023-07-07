@@ -27,11 +27,18 @@
 body {
   font-family: "AkzidenzGrotesk", sans-serif;
   margin: 0;
-  margin: auto;
   color: #000;
   /* background-image: -webkit-linear-gradient(45deg, #ffb300 50%, #ffffff 50%); */
   height: 100vh;
-  max-width: 1000px;
+}
+
+.content {
+  height: 86vh;
+  overflow-y: scroll;
+}
+
+main {
+  /* padding-top: 1rem; */
 }
 
 .error {
@@ -39,16 +46,26 @@ body {
 }
 
 .title {
-  font-size: 68px;
+  font-size: 48px;
   margin: 0;
 }
 
 header {
+  height: 10vh;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-left: 1rem;
   padding-right: 1rem;
+  background-color: white;
+}
+
+footer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 4vh;
+  background-color: white;
 }
 
 .welcome {
@@ -59,7 +76,6 @@ header {
 .byline {
   font-weight: 700;
   padding-left: 1rem;
-
 }
 
 h2, h3, h4, h5, h6 {
@@ -115,12 +131,61 @@ fieldset a {
 }
 
 a:visited {
-  color: blue;
+  color: currentColor;
 }
 
 .normalized {
   color: currentColor;
   text-decoration: none;
+}
+
+.favicon {
+  width: 20px;
+  height: 20px;
+  margin-right: 0.5rem;
+}
+
+li {
+  list-style-type: none;
+}
+
+li.link {
+  background-color: white;
+  padding: 2rem;
+  width: fit-content;
+  border-radius: 5px;
+  margin-top: 1500px;
+  margin-left: 50%;
+}
+
+li.link a.bookmark {
+  display: flex;
+  font-size: 1.2rem;
+}
+
+li.link .link-action {
+  display: flex;
+  justify-content: space-between;
+}
+
+ul.links {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+ul.actions {
+  display: flex;
+  margin: 0;
+  padding: 0; 
+}
+
+ul.actions li:first-child {
+  margin-right: 1rem;
+}
+
+ul.actions li {
+  margin-right: 1rem;
+  font-size: 1.2rem;
 }
 
 /* 

@@ -138,7 +138,7 @@ pub fn error_reply_body(code: StatusCode, message: String) -> Result<impl Reply,
 }
 
 pub fn error_reply(code: StatusCode, message: String) -> Result<impl Reply, Rejection> {
-    log::error!("{}, {}", code, message);
+    log::error!("{}", code);
 
     let html = warp::reply::html(message);
     Ok(warp::reply::with_status(html, code))

@@ -71,7 +71,6 @@ pub fn read(conn: &mut PgConnection) -> Result<Vec<Session>, diesel::result::Err
 pub fn read_by_id(conn: &mut PgConnection, id: i32) -> Result<Session, diesel::result::Error> {
     session::table
         .filter(session::id.eq(id))
-        // .filter(session::valid_until.gt(now()))
         .first::<Session>(conn)
 }
 

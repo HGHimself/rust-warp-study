@@ -11,9 +11,14 @@ pub fn document(title: String, content: String) -> String {
 <html lang='en'>
 {head}
 <body>
+<div>
 {header}
+<main id='content' class='content'>
 {content}
+</main>
 {footer}
+</div>
+<script src='/background.js'></script>
 </body>
 </html>"
     )
@@ -35,6 +40,7 @@ pub fn head(title: String) -> String {
 <link rel='stylesheet' href='/style.css' />
 <link rel='stylesheet' href='/mobile.css' media='screen and (max-width: 600px)' />
 <script src='https://unpkg.com/htmx.org@1.9.2' integrity='sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h' crossorigin='anonymous'></script>
+<script src='https://cdn.jsdelivr.net/npm/d3@7'></script>
 </head>",
     )
 }
@@ -44,7 +50,7 @@ pub fn header() -> String {
         "
     <header>
         <h1 class='title'><a href='/' class='normalized'>digitheque.io</a></h1>
-        <ul>
+        <ul class='actions'>
             <li><a href='/user/login'>Login</a></li>
         </ul>
     </header>",
@@ -56,7 +62,7 @@ pub fn header_authenticated(user: &models::user::User) -> String {
         "
     <header>
         <h1 class='title'><a href='/' class='normalized'>digitheque.io</a></h1>
-        <ul>
+        <ul class='actions'>
             <li><a href='/user'>{}</a></li>
             <li><a href='/user/logout'>Logout</a></li>
         </ul>
@@ -93,9 +99,14 @@ pub fn document_authenticated(title: String, user: &models::user::User, content:
 <html lang='en'>
 {head}
 <body>
+<div>
 {header}
+<main id='content' class='content'>
 {content}
+</main>
 {footer}
+</div>
+<script src='/background.js'></script>
 </body>
 </html>"
     )
@@ -103,6 +114,6 @@ pub fn document_authenticated(title: String, user: &models::user::User, content:
 
 fn footer() -> String {
     String::from("<footer>
-    created by HG King | © 2023 Digitheque.io | <a href='https://github.com/hgm-king/rust-warp-study' target='_blank' >code</a>
+    <span>created by HG King | © 2023 Digitheque.io | <a href='https://github.com/hgm-king/rust-warp-study' target='_blank' >code</a></span>
 </footer>")
 }

@@ -1,10 +1,10 @@
-<dt>
-    <a href="{link.url}" target="_blank" class="flex fit-content">
+<li class="link">
+    <a href="{link.url}" target="_blank" class="bookmark">
         <img src="{link.favicon}" alt="{link.name}" class="favicon" onerror="standby(this)" />
         <span>{page_link.name}</span>
     </a>
-</dt>
-<dd>
-    <p>Options:<a href="/link/{link.id}">Explore</a>;
-    <a hx-delete="/page/{page.id}/link/{link.id}" hx-target="body">Remove</a>;</p>
-</dd>
+    <div class="link-actions">
+    <a href="/link/{link.id}" class="normalize">Explore</a>
+    <a hx-delete="/page/{page.id}/link/{link.id}" hx-target="body">Remove</a>
+    </div>
+</li>
