@@ -1607,6 +1607,7 @@ dependencies = [
  "log",
  "proc-macro2",
  "pwhash",
+ "rand 0.8.5",
  "sanitize_html",
  "serde",
  "serde_derive",

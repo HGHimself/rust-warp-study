@@ -4,7 +4,7 @@ use warp::{filters::BoxedFilter, reject, Filter};
 
 pub fn get() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
     warp::path::param::<i32>()
-    .and(warp::path::end())
+        .and(warp::path::end())
         .and(warp::get())
         .and(routes::user::authenticate_cookie())
         .and_then(with_page)
@@ -15,7 +15,7 @@ pub fn get() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
 pub fn get_authenticated() -> BoxedFilter<(Context, models::user::User, models::page::Page)> {
     warp::path::param::<i32>()
         .and(warp::path::end())
-    .and(warp::get())
+        .and(warp::get())
         .and(routes::user::authenticate_cookie())
         .and_then(with_authenticated_page)
         .untuple_one()
@@ -88,7 +88,6 @@ pub fn create_form() -> BoxedFilter<(Context, models::user::User, models::sessio
     warp::path("create")
         .and(warp::path::end())
         .and(warp::get())
-        
         .and(routes::user::authenticate_cookie())
         .boxed()
 }
@@ -98,7 +97,6 @@ pub fn create_link() -> BoxedFilter<(Context, models::user::User, models::page::
         .and(warp::path("link"))
         .and(warp::path::end())
         .and(warp::post())
-        
         .and(routes::user::authenticate_cookie())
         .and_then(with_authenticated_page)
         .untuple_one()

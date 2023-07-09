@@ -34,6 +34,10 @@ pub fn sanitize_html(input: &str) -> String {
     sanitize_str(&DEFAULT, input).unwrap()
 }
 
+pub fn random(top: usize, bottom: usize) -> usize {
+    (rand::random::<usize>() % top) + bottom
+}
+
 #[test]
 fn test_encryption() {
     // Hash a password with default parameters.

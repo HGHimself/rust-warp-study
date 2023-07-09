@@ -4,12 +4,6 @@
     <p>{page.description}</p>
 </div>
 <div class="item">
-    <h4>Links</h4>
-    <ul class="links">
-        {links}
-    </ul>
-</div>
-<div class="item">
     <form action='/page/{page.id}/link' method='POST'>
         <fieldset>
             <legend>New Link</legend>
@@ -30,3 +24,10 @@
         </fieldset>
     </form>
 </div>
+<div class="item">
+    <h4>Links</h4>
+    <ul class="links">
+        {links}
+    </ul>
+</div>
+{background}

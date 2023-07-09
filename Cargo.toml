@@ -15,6 +15,7 @@ hyper = "0.14.26"
 log = "0.4.14"
 proc-macro2 = "1.0.63"
 pwhash = "1.0.0"
+rand = "0.8.5"
 sanitize_html = "0.7.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_derive = "1.0.126"

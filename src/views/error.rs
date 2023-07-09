@@ -1,4 +1,4 @@
-use crate::views;
+use crate::{models, views};
 use std::include_str;
 use warp::http::StatusCode;
 
@@ -7,6 +7,7 @@ pub fn error(error: StatusCode, message: &str) -> String {
         String::from(error.as_str()),
         include_str!("error.html")
             .replace("{error}", error.as_str())
-            .replace("{message}", message),
+            .replace("{message}", message)
+            .replace("{background}", &models::background::background_random()),
     )
 }

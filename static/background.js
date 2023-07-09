@@ -213,54 +213,86 @@ class Background {
                         .attr("filter", "url(#noiseFilter)"),
                 (update) => update.attr("height", height).attr("width", width)
             );
+
+        this.props.showProps &&
+            this.svg
+                .selectAll("text.details")
+                .data(
+                    Object.keys(this.props)
+                        .filter(key => !['data', 'gradient'].includes(key))
+                        .map((key) => `${key}: ${this.props[key]}`)
+                )
+                .join(
+                    (enter) =>
+                        enter
+                            .append("text")
+                            .attr("class", "details")
+                            .attr("x", this.props.width - 10)
+                            .attr("y", (_, i) => 100 + 10 * (i + 1))
+                            .attr("font-size", 12)
+                            .attr("text-anchor", "end")
+                            .text((d) => d),
+                    (update) => update.text((d) => d),
+                    (exit) => exit
+                );
     }
 }
 
-const props = {
-    height: window.innerHeight,
-    width: window.innerWidth,
-    count: random(50, 100),
-    offset: 0,
-    frequency: random(1, 15),
-    xAmplitude: random(1000, 1500),
-    yAmplitude: random(600, 1000),
-    xMultiplier: random(1, 15),
-    yMultiplier: random(1, 15),
-    color: random(3, 2000),
-    thickness: random(50, 75),
-    numbers: [1, 3, 5, 7],
-    curve: 0,
-    noiseFreqOne: 2.78,
-    numOctaves: 6,
-    hideNoise: 1,
-    background: "rgb(255, 153, 233)",
-    gradient: "radial-gradient(at 32% 33%, rgb(252, 146, 194) 0px, transparent 50%), radial-gradient(at 72% 16%, rgb(249, 93, 106) 0px, transparent 50%), radial-gradient(at 26% 44%, rgb(95, 141, 227) 0px, transparent 50%), radial-gradient(at 74% 60%, rgb(56, 101, 250) 0px, transparent 50%), radial-gradient(at 18% 76%, rgb(239, 216, 123) 0px, transparent 50%), radial-gradient(at 89% 65%, rgb(234, 164, 72) 0px, transparent 50%), radial-gradient(at 65% 72%, rgb(165, 226, 116) 0px, transparent 50%)"
-}
-
-console.log(props)
-
-var background = new Background(props)
-
-
-window.addEventListener("resize", () => {
-    background.resize(window.innerWidth, window.innerHeight)
-});
-
-let lastKnownScrollPosition = 0;
-let ticking = false;
-const content = document.getElementById("content")
-content.addEventListener("scroll", (event) => {
-    lastKnownScrollPosition = content.scrollTop;
-  
-    if (!ticking) {
-      window.requestAnimationFrame(() => {
-        background.setOptions({
-            ...props,
-            offset: props.offset + (lastKnownScrollPosition / 10000)
-        });
-        ticking = false;
-      });
-  
-      ticking = true;
+const showBackground = ({
+    count,
+    frequency,
+    xAmplitude,
+    yAmplitude,
+    xMultiplier,
+    yMultiplier,
+    color,
+    thickness,
+}) => {
+    const props = {
+        height: window.innerHeight,
+        width: window.innerWidth,
+        count: count ?? random(50, 100),
+        offset: 0,
+        frequency: frequency ?? random(1, 15),
+        xAmplitude: xAmplitude ?? random(1000, 1500),
+        yAmplitude: yAmplitude ?? random(600, 1000),
+        xMultiplier: xMultiplier ?? random(1, 15),
+        yMultiplier: yMultiplier ?? random(1, 15),
+        color: color ?? random(3, 2000),
+        thickness: thickness ?? random(50, 75),
+        numbers: [1, 3, 5, 7],
+        curve: 0,
+        noiseFreqOne: 2.78,
+        numOctaves: 6,
+        hideNoise: 1,
+        showProps: 1,
+        background: "rgb(255, 153, 233)",
+        gradient: "radial-gradient(at 32% 33%, rgb(252, 146, 194) 0px, transparent 50%), radial-gradient(at 72% 16%, rgb(249, 93, 106) 0px, transparent 50%), radial-gradient(at 26% 44%, rgb(95, 141, 227) 0px, transparent 50%), radial-gradient(at 74% 60%, rgb(56, 101, 250) 0px, transparent 50%), radial-gradient(at 18% 76%, rgb(239, 216, 123) 0px, transparent 50%), radial-gradient(at 89% 65%, rgb(234, 164, 72) 0px, transparent 50%), radial-gradient(at 65% 72%, rgb(165, 226, 116) 0px, transparent 50%)"
     }
-  });
+    
+    var background = new Background(props)
+    
+    
+    window.addEventListener("resize", () => {
+        background.resize(window.innerWidth, window.innerHeight)
+    });
+    
+    let lastKnownScrollPosition = 0;
+    let ticking = false;
+    const content = document.getElementById("content")
+    content.addEventListener("scroll", (event) => {
+        lastKnownScrollPosition = content.scrollTop;
+    
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                background.setOptions({
+                    ...props,
+                    offset: props.offset + (lastKnownScrollPosition / 10000)
+                });
+                ticking = false;
+            });
+    
+            ticking = true;
+        }
+    });
+}

@@ -18,7 +18,6 @@ pub fn document(title: String, content: String) -> String {
 </main>
 {footer}
 </div>
-<script src='/background.js'></script>
 </body>
 </html>"
     )
@@ -41,6 +40,9 @@ pub fn head(title: String) -> String {
 <link rel='stylesheet' href='/mobile.css' media='screen and (max-width: 600px)' />
 <script src='https://unpkg.com/htmx.org@1.9.2' integrity='sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h' crossorigin='anonymous'></script>
 <script src='https://cdn.jsdelivr.net/npm/d3@7'></script>
+<script src='/sal.js'></script>
+<link rel='stylesheet' href='/sal.css' />
+<script src='/background.js'></script>
 </head>",
     )
 }
@@ -77,7 +79,8 @@ pub fn index_authenticated(user: &models::user::User, message: &str) -> String {
         user,
         include_str!("index-authenticated.html")
             .to_string()
-            .replace("{message}", message),
+            .replace("{message}", message)
+            .replace("{background}", &models::background::index()),
     )
 }
 
@@ -86,7 +89,8 @@ pub fn index(message: &str) -> String {
         String::from("Digitheque"),
         include_str!("index.html")
             .to_string()
-            .replace("{message}", message),
+            .replace("{message}", message)
+            .replace("{background}", &models::background::index()),
     )
 }
 
@@ -106,7 +110,7 @@ pub fn document_authenticated(title: String, user: &models::user::User, content:
 </main>
 {footer}
 </div>
-<script src='/background.js'></script>
+<script>sal();</script>
 </body>
 </html>"
     )
@@ -114,6 +118,6 @@ pub fn document_authenticated(title: String, user: &models::user::User, content:
 
 fn footer() -> String {
     String::from("<footer>
-    <span>created by HG King | © 2023 Digitheque.io | <a href='https://github.com/hgm-king/rust-warp-study' target='_blank' >code</a></span>
+    <span>© 2023 Digitheque.io | created by HG King | <a href='https://github.com/hgm-king/rust-warp-study' target='_blank' >code</a></span>
 </footer>")
 }

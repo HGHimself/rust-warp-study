@@ -1,10 +1,10 @@
-<li class="link">
-    <a href="{link.url}" target="_blank" class="bookmark">
-        <img src="{link.favicon}" alt="{link.name}" class="favicon" onerror="standby(this)" />
-        <span>{page_link.name}</span>
-    </a>
-    <div class="link-actions">
-    <a href="/link/{link.id}" class="normalize">Explore</a>
-    <a hx-delete="/page/{page.id}/link/{link.id}" hx-target="body">Remove</a>
+<li class="link-wrapper" data-sal="zoom-in" style="grid-row: {y}; grid-column: {x};">
+    <div class="link">
+        <a href="{link.url}" target="_blank" class="bookmark external">
+            <img src="{link.favicon}" alt="{link.name}" class="favicon" onerror="standby(this)" />
+            <span>{page_link.name}</span>
+        </a>
+        <a href="/link/{link.id}" class="normalize explore">Explore</a>
     </div>
+    <a hx-delete="/page/{page.id}/link/{link.id}" hx-target="body" class="delete">✕</a>
 </li>

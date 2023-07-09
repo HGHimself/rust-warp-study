@@ -15,7 +15,8 @@ pub async fn view(
             warp::reject::not_found()
         })?
         .iter()
-        .map(|(link, page_link)| page.inject_values(&views::link::link(link, page_link)))
+        .enumerate()
+        .map(|(i, (link, page_link))| page.inject_values(&views::link::link(i, link, page_link)))
         .collect::<String>();
 
     let page_html = views::page::view(user, page, "").replace("{links}", &links);
@@ -36,8 +37,9 @@ pub async fn view_authenticated(
             warp::reject::not_found()
         })?
         .iter()
-        .map(|(link, page_link)| {
-            page.inject_values(&views::link::link_authenticated(link, page_link))
+        .enumerate()
+        .map(|(i, (link, page_link))| {
+            page.inject_values(&views::link::link_authenticated(i, link, page_link))
         })
         .collect::<String>();
 
@@ -67,7 +69,8 @@ pub async fn handle_create_link_error(
             warp::reject::not_found()
         })?
         .iter()
-        .map(|(link, page_link)| page.inject_values(&views::link::link(link, page_link)))
+        .enumerate()
+        .map(|(i, (link, page_link))| page.inject_values(&views::link::link(i, link, page_link)))
         .collect::<String>();
 
     let html = views::page::view_authenticated(user, page, "Error: Link already exists in this page").replace("{links}", &links);
