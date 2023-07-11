@@ -1,26 +1,71 @@
-<section>
-    <h1 class="welcome">Welcome to the <i>Digitheque</i>!</h1>
-    <h3 class="byline">A new social network allowing people to help eachother explore the internet.</h3>
-    <p class="error">{message}</p>
-    <ul>
-        <li><a href="/user/logout">Log out if you want</a></li>
-        <li><a href="/user">Check out your profile</a></li>
-    </ul>
-    <p class="error">{message}</p>
-</section>
-<div class="home-info">
-    <section class="card">
-        <h6>What do we do different?</h6>
-        <p>Well the core driver of the network is exploration. The Digitheque is unlike a
-            traditional social media network where the driver is interaction.</p>
-    </section>
-    <section class="card">
-        <h6>How do I use it?</h6>
-        <p>The app is designed to be as easy as possible to use. There are two main concepts: the Link and the Page.
-            A user can have many pages. A page can have at most 10 links. If you and another user have a page with the
-            same link, you can see their page.
-            That is it; no comments, no statuses, you will not even be able to see who owns that page.
-        </p>
-    </section>
-</div>
+<ul class="home">
+    <li class="home-title">
+        <h1 class="welcome">Welcome to the <i>Digitheque</i>!</h1>
+        <h3 class="byline">A new social network allowing people to help eachother explore the internet.</h3>
+    </li>
+    <li class="home-actions">
+        <p class="error">{message}</p>
+        <ul>
+            <li><a href="/user/logout" class="normalize button-link">Log out</a></li>
+            <li><a href="/user" class="normalize button-link">View your profile</a></li>
+        </ul>
+    </li>
+    <li data-sal="zoom-in" class="card home-one">
+        <div>
+            <h6>What is the Digitheque?</h6>
+            <p>The name digitheque comes from a portmanteau of the words <i>digital</i> and <i>bibliotheque</i>.
+                We are trying to develop a different type of search engine for resources and tools on the internet.
+                Traditional search engines like Google are more direct, having the user query what their are looking
+                for.
+            </p>
+            <p>The Digitheque is fundamentally different. Users build up groups of bookmarks to sites they are
+                interested in. From there, the user can explore outward and see what other users have bookmarked the
+                same
+                sites. The group of bookmarks is important because it is a node of the network. Two matching bookmarks
+                are what links
+                these groups together.
+            </p>
+        </div>
+    </li>
+    <li data-sal="zoom-in" class="home-one-two">
+        <img src="/sphere.svg" height="400px" width="400px" />
+    </li>
+    <li data-sal="zoom-in" class="card home-two">
+        <div>
+            <h6>Why make another social network?</h6>
+            <p>It is apparent that people are upset with the state of the internet. Siloed,
+                proprietary platforms that push to maximize engagement are central to corporate monetization
+                strategies. These proprietary platforms are also directly in competition with the
+                core principles of the internet. In order to do my part in the fight against the monopolization
+                of the internet (as well as people's attention), we have developed the Digitheque.
+            </p>
+        </div>
+    </li>
+    <li data-sal="zoom-in" class="card home-three">
+        <div>
+            <h6>What do we do different?</h6>
+            <p>Well the core driver of the network is exploration. The Digitheque is unlike a
+                traditional social media network where the driver is interaction.</p>
+        </div>
+    </li>
+    <li data-sal="zoom-in" class="card home-four">
+        <div>
+            <h6>How do I use it?</h6>
+            <p>The app is designed to be as easy as possible to use. There are two main concepts: the Link and the Page.
+                A user can have many pages. A page can have at most 10 links. If you and another user have a page with
+                the
+                same link, you can see their page.
+                That is it; no comments, no statuses, you will not even be able to see who owns that page.
+            </p>
+        </div>
+    </li>
+    <li data-sal="zoom-in" class="card home-five">
+        <div>
+            <h6>Is any of my data collected?</h6>
+            <p>We do not collect any of your data outside the information you provide. This is not an
+                advertising operation to make money. We value to privacy of all humans.
+            </p>
+        </div>
+    </li>
+</ul>
 {background}

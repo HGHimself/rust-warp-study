@@ -153,7 +153,7 @@ pub fn read_user_by_session(
 ) -> Result<(User, models::session::Session), diesel::result::Error> {
     user::table
         .inner_join(session::table.on(user::id.eq(session::user_id)))
-        .filter(session::valid_until.gt(now()))
+        // .filter(session::valid_until.gt(now()))
         .filter(session::deleted_at.is_null())
         .filter(session::id.eq(session_id))
         .filter(user::deleted_at.is_null())

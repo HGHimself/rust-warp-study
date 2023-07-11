@@ -1,8 +1,11 @@
-<div class="crumbs"><a href="/user">{user.username}</a></div>
-<h3>Your Profile</h3>
-<h4>Your pages</h4>
-<ul>
-{pages}
+<div class="crumbs">
+    <a href="/user">{user.username}</a>
+</div>
+<h3 class="link-page-title">Your Profile</h3>
+<div class="spaceous">
+    <a href="/page/create" class="normalize button-link">Create a page</a>
+</div>
+<ul class="page-list">
+    {pages}
 </ul>
-<a href="/page/create">click here to create a page</a>
 {background}

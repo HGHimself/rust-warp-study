@@ -1,8 +1,10 @@
 <div class="crumbs"><a href="/user">{user.username}</a>&gt;<a href="/link/{link.id}">{link.url}</a></div>
-<h3>Pages with this link</h3>
+<h3 class="link-page-title">Explore pages</h3>
 <a href="{link.url}" target="_blank" class="flex fit-content">
     <img src="{link.favicon}" alt="{link.name}" class="favicon" onerror="standby(this)" />
-    <span>{link.url}</span>
+    Visit link
 </a>
+<ul class="page-list">
 {pages}
+</ul>
 {background}

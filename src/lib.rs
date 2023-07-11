@@ -72,6 +72,10 @@ impl reject::Reject for NotFound {}
 struct NotAuthorized;
 impl reject::Reject for NotAuthorized {}
 
+#[derive(Debug)]
+struct OldCookie;
+impl reject::Reject for OldCookie {}
+
 pub async fn handle_final_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
     let code;
     let message;
@@ -88,32 +92,45 @@ pub async fn handle_final_rejection(err: Rejection) -> Result<impl Reply, Infall
 
     log::error!("{}, {}", code, message);
 
-    let json = warp::reply::html(views::error::error(code, message));
-    Ok(warp::reply::with_status(json, code))
+    let html = warp::reply::html(views::error::error(code, message));
+    Ok(warp::reply::with_status(html, code))
 }
 
-pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Rejection> {
+pub async fn handle_rejection(err: Rejection) -> Result<Box<dyn warp::Reply>, Rejection> {
     if let Some(_) = err.find::<DuplicateResource>() {
-        error_reply_body(StatusCode::BAD_REQUEST, String::from("DUPLICATE"))
+        let code = StatusCode::BAD_REQUEST;
+        error_reply(code, views::error::error(code, "Duplicate resource"))
     } else if let Some(_) = err.find::<NotAuthorized>() {
-        let html = String::from("You are not authorized to do this");
-        error_reply_body(StatusCode::FORBIDDEN, html)
+        let code = StatusCode::FORBIDDEN;
+        error_reply(
+            code,
+            views::error::error(code, "You are not authorized to do this"),
+        )
+    } else if let Some(_) = err.find::<OldCookie>() {
+        Ok(Box::new(warp::reply::with_header(
+            warp::reply::html(views::body::index("Your session has expired")),
+            "Set-Cookie",
+            format!("session=; Path=/"),
+        )))
     } else if let Some(_) = err.find::<reject::MissingCookie>() {
-        let html = String::from("Try logging in");
-        error_reply_body(StatusCode::FORBIDDEN, html)
+        let code = StatusCode::FORBIDDEN;
+        error_reply(code, views::error::error(code, "You are not logged in"))
     } else if let Some(NotFound) = err.find::<NotFound>() {
-        error_reply_body(StatusCode::NOT_FOUND, String::from("NOT_FOUND"))
+        let code = StatusCode::NOT_FOUND;
+        error_reply(
+            code,
+            views::error::error(code, "We could not locate this resource"),
+        )
     } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
         let message = match e.source() {
-            Some(cause) => format!("BAD_REQUEST: {cause}"),
-            None => String::from("BAD_REQUEST"),
+            Some(cause) => cause.to_string(),
+            None => String::from("The request was malformed"),
         };
-        error_reply_body(StatusCode::BAD_REQUEST, message)
+        let code = StatusCode::NOT_FOUND;
+        error_reply(code, views::error::error(code, &message))
     } else if let Some(_) = err.find::<reject::UnsupportedMediaType>() {
-        error_reply_body(
-            StatusCode::UNSUPPORTED_MEDIA_TYPE,
-            String::from("UNSUPPORTED_MEDIA_TYPE"),
-        )
+        let code = StatusCode::UNSUPPORTED_MEDIA_TYPE;
+        error_reply(code, views::error::error(code, "UNSUPPORTED_MEDIA_TYPE"))
     } else if let Some(_) = err.find::<reject::MethodNotAllowed>() {
         log::info!("Passing MethodNotAllowed error through!");
         Err(err)
@@ -123,23 +140,23 @@ pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Rejection> {
     } else {
         // We should have expected this... Just log and say its a 500
         error!("unhandled rejection: {:?}", err);
-        error_reply_body(
+        error_reply(
             StatusCode::INTERNAL_SERVER_ERROR,
             String::from("UNHANDLED_REJECTION"),
         )
     }
 }
 
-pub fn error_reply_body(code: StatusCode, message: String) -> Result<impl Reply, Rejection> {
-    log::error!("{}, {}", code, message);
+// pub fn error_reply_body(code: StatusCode, message: String) -> Result<impl Reply, Rejection> {
+//     log::error!("{}, {}", code, message);
 
-    let html = warp::reply::html(views::error::error(code, &message));
-    Ok(warp::reply::with_status(html, code))
-}
+//     let html = warp::reply::html(views::error::error(code, &message));
+//     Ok(warp::reply::with_status(html, code))
+// }
 
-pub fn error_reply(code: StatusCode, message: String) -> Result<impl Reply, Rejection> {
+pub fn error_reply(code: StatusCode, message: String) -> Result<Box<dyn Reply>, Rejection> {
     log::error!("{}", code);
 
     let html = warp::reply::html(message);
-    Ok(warp::reply::with_status(html, code))
+    Ok(Box::new(warp::reply::with_status(html, code)))
 }

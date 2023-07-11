@@ -1,4 +1,21 @@
 table! {
+    background (id) {
+        id -> Int4,
+        count -> Int4,
+        frequency -> Int4,
+        x_amplitude -> Int4,
+        y_amplitude -> Int4,
+        x_multiplier -> Int4,
+        y_multiplier -> Int4,
+        color -> Int4,
+        thickness -> Int4,
+        created_at -> Timestamp,
+        updated_at -> Nullable<Timestamp>,
+        deleted_at -> Nullable<Timestamp>,
+    }
+}
+
+table! {
     link (id) {
         id -> Int4,
         url -> Varchar,
@@ -59,4 +76,4 @@ joinable!(link -> user (creator_user_id));
 joinable!(page_link -> link (link_id));
 joinable!(page_link -> page (page_id));
 
-allow_tables_to_appear_in_same_query!(link, page, page_link, session, user,);
+allow_tables_to_appear_in_same_query!(background, link, page, page_link, session, user,);

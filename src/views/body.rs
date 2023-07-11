@@ -18,6 +18,7 @@ pub fn document(title: String, content: String) -> String {
 </main>
 {footer}
 </div>
+<script>sal();</script>
 </body>
 </html>"
     )
@@ -90,7 +91,7 @@ pub fn index(message: &str) -> String {
         include_str!("index.html")
             .to_string()
             .replace("{message}", message)
-            .replace("{background}", &models::background::index()),
+            .replace("{background}", &models::background::background_random()),
     )
 }
 

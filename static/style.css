@@ -35,7 +35,7 @@ body {
 .content {
   height: 86vh;
   overflow-y: scroll;
-  padding-left: 1rem;
+  padding-left: 4rem;
   padding-right: 1rem;
 }
 
@@ -71,16 +71,21 @@ footer {
 }
 
 .welcome {
-  font-weight: 200;
-  font-size: 3rem;
-  padding-left: 2rem;
+  font-size: 2rem;
+  padding-left: 0rem;
+  line-height: 1.5;
+}
+
+.welcome i {
+  font-size: 2.5rem;
 }
 
 .byline {
-  font-weight: 700;
-  padding-left: 1rem;
+  padding-left: 0rem;
   font-size: 1.5rem;
-  width: 400px;
+  max-width: 600px;
+  line-height: 1.4;
+  font-weight: 100;
 }
 
 h2,
@@ -89,7 +94,6 @@ h4,
 h5,
 h6 {
   margin: 0;
-  padding-left: 1rem;
 }
 
 h6 {
@@ -101,17 +105,85 @@ p {
   max-width: 500px;
 }
 
-.home-info {
+.home-actions ul {
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
+  font-size: 1rem;
 }
 
-section.card {
+.home-actions ul li {
+  margin-top: 2rem;
+  border-radius: 5px;
   background-color: #ffffffee;
-  border-radius: 60px;
   width: fit-content;
-  padding: 2rem;
+  padding: 0.5rem;
+}
+
+.home {
+  display: grid;
+  column-gap: 2rem;
+  row-gap: 3rem;
+  grid-template-columns: repeat(2, 50%);
+  align-items: center;
+  width: 90%;
+  justify-items: center;
+}
+
+.home-title {
+  grid-row: 1;
+  grid-column: 1;
+  display: block;
+  margin-bottom: 5rem;
+  margin-top: 5rem;
+}
+
+.home-actions {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.home-one {
+  grid-row: 2;
+  grid-column: 1;
+}
+.home-one-two {
+  grid-row: 2;
+  grid-column: 2;
+}
+
+.home-two {
+  grid-row: 3;
+  grid-column: 2;
+}
+
+.home-three {
+  grid-row: 4;
+  grid-column: 1;
+}
+
+.home-four {
+  grid-row: 5;
+  grid-column: 2;
+}
+
+.home-five {
+  grid-row: 6;
+  grid-column: 1;
+}
+
+.card {
+  background-color: #ffffffee;
+  border-radius: 5px;
+  width: fit-content;
   margin: 1rem;
+  padding: 0.5rem;
+}
+
+.card div {
+  border: 1.5px dashed black;
+  border-radius: 5px;
+  padding: 2rem;
+  max-width: 450px;
 }
 
 form {
@@ -149,10 +221,14 @@ fieldset button {
   margin-right: 1rem;
   margin-top: 1rem;
   background-color: inherit;
+  width: fit-content;
+}
+
+.button-link {
   padding: 0.5rem;
   border: 1.5px dashed black;
   border-radius: 5px;
-  width: fit-content;
+  text-decoration: none;
 }
 
 fieldset a {
@@ -176,6 +252,7 @@ a:visited {
 
 li {
   list-style-type: none;
+  display: flex;
 }
 
 li.link-wrapper {
@@ -215,8 +292,11 @@ li .link .link-action {
 ul.links {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(10, 1fr);
   row-gap: 150px;
+}
+
+ul.authenticated {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .explore {
@@ -254,9 +334,7 @@ ul.actions li {
   border-radius: 100px;
 }
 
-.page-title {
-
-}
+.page-title {}
 
 .page-title h2 {
   font-size: 3rem;
@@ -282,12 +360,63 @@ a.external span::after {
   text-decoration: none;
 }
 
-.signup, .login {
+.signup,
+.login {
   margin: auto;
   width: fit-content;
   margin-top: 10%;
 }
 
+ul.page-list {
+  display: grid;
+  grid-template-columns: repeat(2, 40%);
+  grid-gap: 3rem;
+}
+
+ul.page-list li {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffffee;
+  border-radius: 5px;
+  margin-top: 2rem;
+}
+
+ul.page-list li a {
+  font-size: 1.5rem;
+}
+
+ul.page-list li span {
+  font-size: 1.2rem;
+  width: 300px;
+}
+
+.crumbs {
+  margin: 1rem;
+  width: fit-content;
+  font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.crumbs a {
+  margin-right: 0.5rem;
+  margin-left: 0.5rem;
+}
+
+.page-top {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.link-page-title {
+  font-size: 2.5rem;
+}
+
+.spaceous {
+  margin: 2rem;
+}
 /* 
 header {
   grid-row: 1/2;

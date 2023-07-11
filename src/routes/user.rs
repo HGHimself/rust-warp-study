@@ -1,4 +1,6 @@
-use crate::{models, server::Context, DuplicateResource, NotAuthorized, NotFound};
+use crate::{
+    models, server::Context, utils::now, DuplicateResource, NotAuthorized, NotFound, OldCookie,
+};
 use diesel::result::{DatabaseErrorKind, Error::DatabaseError};
 use warp::{
     filters::{self, BoxedFilter},
@@ -123,6 +125,11 @@ async fn with_user_from_cookie(
     log::info!("Session ID: {}", session_id);
     let (user, session) = models::user::read_user_by_session(&mut conn, session_id)
         .map_err(|_| warp::reject::custom(NotAuthorized))?;
+    if session.valid_until < now() {
+        models::session::delete(&mut conn, &session).map_err(|_| warp::reject::custom(NotFound))?;
+        return Err(warp::reject::custom(OldCookie));
+    }
+
     log::info!("Recognized user {:?} from {:?}", user, session);
     Ok((context, user, session))
 }

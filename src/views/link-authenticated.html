@@ -1,10 +1,10 @@
-<li class="link-wrapper" data-sal="zoom-in" style="grid-row: {y}; grid-column: {x};">
+<li class="link-wrapper">
     <div class="link">
         <a href="{link.url}" target="_blank" class="bookmark external">
             <img src="{link.favicon}" alt="{link.name}" class="favicon" onerror="standby(this)" />
             <span>{page_link.name}</span>
         </a>
-        <a href="/link/{link.id}" class="normalize explore">Explore</a>
+        <a href="/link/{link.id}" class="normalize explore button-link">Explore</a>
     </div>
     <a hx-delete="/page/{page.id}/link/{link.id}" hx-target="body" class="delete">✕</a>
 </li>
