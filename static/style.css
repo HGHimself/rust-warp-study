@@ -271,11 +271,11 @@ li .link {
   align-items: center;
 }
 
-li .link:hover {
-  border: 5px solid #00ffd5;
+/* li .link:hover {
+  border: 5px solid #ffb300;
   box-shadow: 0px 0px 5px 2.5px #00ffd5, inset 0px 0px 1px #00ffd5;
   margin: 0px;
-}
+} */
 
 li .link a.bookmark {
   display: flex;
@@ -310,6 +310,7 @@ ul.authenticated {
 
 ul.actions {
   display: flex;
+  align-items: center;
   margin: 0;
   padding: 0;
 }
@@ -321,6 +322,22 @@ ul.actions li:first-child {
 ul.actions li {
   margin-right: 1rem;
   font-size: 1.2rem;
+}
+
+.page-link {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.page-link .link-banner {
+  width: 30%;
+}
+
+.page-link div {
+  width: 50%;
+  max-width: 300px;
+  margin-left: 1rem;
 }
 
 .delete {
@@ -351,7 +368,6 @@ a.external span::after {
   margin-left: 0.1em;
   font-size: 90%;
   top: -0.1em;
-  color: rgb(153, 51, 51);
   font-feature-settings: "caps";
   font-variant-numeric: normal;
 }
@@ -360,8 +376,12 @@ a.external span::after {
   text-decoration: none;
 }
 
-.signup,
-.login {
+/* .signup,
+.login, .create-page {
+
+} */
+
+.single-form {
   margin: auto;
   width: fit-content;
   margin-top: 10%;
@@ -371,6 +391,7 @@ ul.page-list {
   display: grid;
   grid-template-columns: repeat(2, 40%);
   grid-gap: 3rem;
+  align-items: start;
 }
 
 ul.page-list li {
@@ -383,7 +404,7 @@ ul.page-list li {
 }
 
 ul.page-list li a {
-  font-size: 1.5rem;
+  font-size: 2rem;
 }
 
 ul.page-list li span {
@@ -417,6 +438,7 @@ ul.page-list li span {
 .spaceous {
   margin: 2rem;
 }
+
 /* 
 header {
   grid-row: 1/2;

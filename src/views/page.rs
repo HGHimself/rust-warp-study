@@ -29,7 +29,7 @@ pub fn create_page(user: models::user::User, message: &str) -> String {
     views::body::document_authenticated(
         String::from("Create Page"),
         &user,
-        String::from(include_str!("create-page.html"))
+        user.inject_values(&String::from(include_str!("create-page.html")))
             .replace("{error}", message)
             .replace("{background}", &models::background::index()),
     )

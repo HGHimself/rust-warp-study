@@ -1,7 +1,7 @@
 use crate::{
     models,
     schema::{link, page_link},
-    utils::{now, sanitize_html},
+    utils::{get_metadata_from_url, now, sanitize_html},
 };
 use chrono::naive::NaiveDateTime;
 use diesel::prelude::*;
@@ -18,6 +18,9 @@ pub struct Link {
     pub created_at: NaiveDateTime,
     pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
+    pub img_url: Option<String>,
+    pub title: Option<String>,
+    pub description: Option<String>,
 }
 
 impl Link {
@@ -29,6 +32,9 @@ impl Link {
             created_at: self.created_at.clone(),
             updated_at: Some(now()),
             deleted_at: self.deleted_at.clone(),
+            img_url: self.img_url.clone(),
+            title: self.title.clone(),
+            description: self.description.clone(),
         }
     }
 
@@ -36,6 +42,27 @@ impl Link {
         string
             .replace("{link.id}", &self.id.to_string())
             .replace("{link.url}", &self.url)
+            .replace(
+                "{link.img_url}",
+                match &self.img_url {
+                    Some(url) => &url,
+                    None => "",
+                },
+            )
+            .replace(
+                "{link.title}",
+                match &self.title {
+                    Some(url) => &url,
+                    None => "",
+                },
+            )
+            .replace(
+                "{link.description}",
+                match &self.description {
+                    Some(url) => &url,
+                    None => "",
+                },
+            )
             .replace(
                 "{link.favicon}",
                 &(match url::Url::parse(&self.url) {
@@ -65,16 +92,23 @@ pub struct NewLink {
     pub created_at: NaiveDateTime,
     pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
+    pub img_url: Option<String>,
+    pub title: Option<String>,
+    pub description: Option<String>,
 }
 
 impl NewLink {
     pub fn new(new_link: NewLinkApi, creator_user_id: i32) -> Self {
+        let metadata = get_metadata_from_url(&new_link.url);
         NewLink {
             url: sanitize_html(&new_link.url),
             creator_user_id: creator_user_id,
             created_at: now(),
             updated_at: None,
             deleted_at: None,
+            title: metadata.title,
+            description: metadata.description,
+            img_url: metadata.img_url,
         }
     }
 

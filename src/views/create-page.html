@@ -1,24 +1,26 @@
 <div class="crumbs"><a href="/user">{user.username}</a>&gt;<a href="/page/create">new page</a></div>
-<h3>Create Page</h3>
-<form action='/page' method='POST'>
-    <fieldset>
-        <legend>New Page Details</legend>
-        <div>
-            <label>
-                <span>Name:</span>
-                <input type='text' name='name' required max=64 />
-            </label>
-        </div>
-        <div>
-            <label>
-                <span>Description:</span>
-                <input type='text' name='description' max=248 />
-            </label>
-        </div>
-        <div class="error">{error}</div>
-        <div class="flex around">
-            <button type='submit'>Create</button>
-        </div>
-    </fieldset>
-</form>
+<section class="create-page single-form">
+    <h6>Create Page</h6>
+    <form action='/page' method='POST'>
+        <fieldset>
+            <legend>New Page Details</legend>
+            <div>
+                <label>
+                    <span>Name:</span>
+                    <input type='text' name='name' required max=64 />
+                </label>
+            </div>
+            <div>
+                <label>
+                    <span>Description:</span>
+                    <input type='text' name='description' required max=248 />
+                </label>
+            </div>
+            <div class="error">{error}</div>
+            <div class="flex around">
+                <button type='submit' class="button-link">Create</button>
+            </div>
+        </fieldset>
+    </form>
+</section>
 {background}

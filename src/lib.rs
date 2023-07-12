@@ -13,6 +13,7 @@ pub mod views;
 
 #[macro_use]
 extern crate diesel;
+extern crate opengraph;
 
 use log::error;
 use server::Context;

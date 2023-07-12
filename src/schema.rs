@@ -23,6 +23,9 @@ table! {
         created_at -> Timestamp,
         updated_at -> Nullable<Timestamp>,
         deleted_at -> Nullable<Timestamp>,
+        img_url -> Nullable<Varchar>,
+        title -> Nullable<Varchar>,
+        description -> Nullable<Varchar>,
     }
 }
 

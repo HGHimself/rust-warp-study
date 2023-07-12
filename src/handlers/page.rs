@@ -70,7 +70,7 @@ pub async fn handle_create_link_error(
         })?
         .iter()
         .enumerate()
-        .map(|(i, (link, page_link))| page.inject_values(&views::link::link(i, link, page_link)))
+        .map(|(i, (link, page_link))| page.inject_values(&views::link::link_authenticated(i, link, page_link)))
         .collect::<String>();
 
     let html = views::page::view_authenticated(user, page, "Error: Link already exists in this page").replace("{links}", &links);

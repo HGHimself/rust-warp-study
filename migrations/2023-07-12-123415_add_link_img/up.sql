@@ -1,0 +1,4 @@
+-- Your SQL goes here
+ALTER TABLE link ADD COLUMN img_url VARCHAR(2048);
+ALTER TABLE link ADD COLUMN title VARCHAR(128);
+ALTER TABLE link ADD COLUMN description VARCHAR(2048);

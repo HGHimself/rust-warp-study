@@ -1,29 +1,31 @@
 <div class="crumbs"><a href="/user">{user.username}</a>&gt;<a href="/page/{page.id}">{page.name}</a></div>
 <div class="page-top">
-<div class="page-title">
-    <h2>{page.name}</h2>
-    <p>{page.description}</p>
-</div>
-<form action='/page/{page.id}/link' method='POST'>
-    <h3>Add new link</h3>
-    <fieldset>
-        <legend>Link Details</legend>
-        <div>
-            <label>
-                <span>Name:</span>
-                <input type='name' name='name' required max=48 />
-            </label>
-        </div>
-        <div>
-            <label>
-                <span>URL:</span>
-                <input type='url' name='url' required max=2048 />
-            </label>
-        </div>
-        <div class="error">{error}</div>
-        <button type='submit' class="button-link">Submit</button>
-    </fieldset>
-</form>
+    <div class="page-title">
+        <h2>{page.name}</h2>
+        <p>{page.description}</p>
+    </div>
+    <section class="new-link">
+        <h3>Add new link</h3>
+        <form action='/page/{page.id}/link' method='POST'>
+            <fieldset>
+                <legend>Link Details</legend>
+                <div>
+                    <label>
+                        <span>Name:</span>
+                        <input type='name' name='name' required max=48 />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <span>URL:</span>
+                        <input type='url' name='url' required max=2048 />
+                    </label>
+                </div>
+                <div class="error">{error}</div>
+                <button type='submit' class="button-link">Submit</button>
+            </fieldset>
+        </form>
+    </section>
 </div>
 <div class="item">
     <h4>Links</h4>
