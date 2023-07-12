@@ -7,6 +7,6 @@ pub fn link_page(link: &models::link::Link, user: &models::user::User, pages: &s
         user,
         user.inject_values(&link.inject_values(include_str!("link-page.html")))
             .replace("{pages}", pages)
-            .replace("{background}", &models::background::index()),
+            .replace("{background}", &models::background::background_random()),
     )
 }

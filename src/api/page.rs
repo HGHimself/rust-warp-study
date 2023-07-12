@@ -12,7 +12,8 @@ macro_rules! page {
                     .or(routes::page::create()
                         .and_then(handlers::page::view_authenticated)
                         .recover(handlers::page::handle_create_page_error))
-                    .or(routes::page::remove_link().and_then(handlers::page::view_authenticated))
+                    .or(routes::page::delete().and_then(handlers::user::profile))
+                    .or(routes::page::delete_link().and_then(handlers::page::view_authenticated))
                     .recover(handle_rejection),
             )
             .with(warp::trace::named("page"))

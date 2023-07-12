@@ -91,7 +91,7 @@ pub fn index(message: &str) -> String {
         include_str!("index.html")
             .to_string()
             .replace("{message}", message)
-            .replace("{background}", &models::background::background_random()),
+            .replace("{background}", &models::background::index()),
     )
 }
 

@@ -9,16 +9,25 @@ pub async fn profile(
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
 
-    let pages = models::page::read_pages_by_user_id(&mut conn, expanded_user.user.id)
-        .map_err(|e| {
+    let pages =
+        models::page::read_pages_by_user_id(&mut conn, expanded_user.user.id).map_err(|e| {
             log::error!("{:?}", e);
             warp::reject::not_found()
-        })?
-        .iter()
-        .map(|page| views::page::list_item(page))
-        .collect::<String>();
+        })?;
+
+    let pages_html = if pages.len() != 0 {
+        pages
+            .iter()
+            .map(|page| views::page::list_item_authenticated(page))
+            .collect::<String>()
+    } else {
+        String::from(
+            "<h3 class='empty-error'>You have no pages yet! Add one using the form above.</h3>",
+        )
+    };
+
     let profile_html = views::user::profile(expanded_user.user, expanded_user.background)
-        .replace("{pages}", &pages);
+        .replace("{pages}", &pages_html);
 
     Ok(warp::reply::html(profile_html))
 }
@@ -29,16 +38,25 @@ pub async fn profile_with_cookie(
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
 
-    let pages = models::page::read_pages_by_user_id(&mut conn, expanded_user.user.id)
-        .map_err(|e| {
+    let pages =
+        models::page::read_pages_by_user_id(&mut conn, expanded_user.user.id).map_err(|e| {
             log::error!("{:?}", e);
             warp::reject::not_found()
-        })?
-        .iter()
-        .map(|page| views::page::list_item(page))
-        .collect::<String>();
+        })?;
+
+    let pages_html = if pages.len() != 0 {
+        pages
+            .iter()
+            .map(|page| views::page::list_item_authenticated(page))
+            .collect::<String>()
+    } else {
+        String::from(
+            "<h3 class='empty-error'>You have no pages yet! Add one using the form above.</h3>",
+        )
+    };
+
     let profile_html = views::user::profile(expanded_user.user, expanded_user.background)
-        .replace("{pages}", &pages);
+        .replace("{pages}", &pages_html);
 
     Ok(warp::reply::with_header(
         warp::reply::html(profile_html),
