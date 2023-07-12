@@ -60,8 +60,10 @@ impl reject::Reject for DuplicateResource {}
 #[derive(Debug)]
 struct DuplicateResourceWithData {
     context: Option<Context>,
+    expanded_user: Option<models::user::ExpandedUser>,
     user: Option<models::user::User>,
-    page: Option<models::page::Page>,
+    // page: Option<models::page::Page>,
+    expanded_page: Option<models::page::ExpandedPage>,
 }
 impl reject::Reject for DuplicateResourceWithData {}
 

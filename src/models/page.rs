@@ -1,6 +1,6 @@
 use crate::{
     models,
-    schema::{page, page_link},
+    schema::{background, page, page_link},
     utils::{now, sanitize_html},
 };
 use chrono::naive::NaiveDateTime;
@@ -8,6 +8,7 @@ use diesel::prelude::*;
 use serde::Deserialize;
 
 #[derive(Clone, Debug, Identifiable, Selectable, Queryable, AsChangeset)]
+#[diesel(belongs_to(models::background::Background))]
 #[diesel(table_name = page)]
 pub struct Page {
     pub id: i32,
@@ -17,6 +18,13 @@ pub struct Page {
     pub created_at: NaiveDateTime,
     pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
+    pub background_id: i32,
+}
+
+#[derive(Clone, Debug)]
+pub struct ExpandedPage {
+    pub page: Page,
+    pub background: models::background::Background,
 }
 
 impl Page {
@@ -29,6 +37,7 @@ impl Page {
             created_at: self.created_at.clone(),
             updated_at: Some(now()),
             deleted_at: self.deleted_at.clone(),
+            background_id: self.background_id.clone(),
         }
     }
 
@@ -55,10 +64,11 @@ pub struct NewPage {
     pub created_at: NaiveDateTime,
     pub updated_at: Option<NaiveDateTime>,
     pub deleted_at: Option<NaiveDateTime>,
+    pub background_id: i32,
 }
 
 impl NewPage {
-    pub fn new(new_page: NewPageApi, user_id: i32) -> Self {
+    pub fn new(new_page: NewPageApi, user_id: i32, background_id: i32) -> Self {
         NewPage {
             name: sanitize_html(&new_page.name),
             description: sanitize_html(&new_page.description),
@@ -66,6 +76,7 @@ impl NewPage {
             created_at: now(),
             updated_at: None,
             deleted_at: None,
+            background_id: background_id,
         }
     }
 
@@ -84,23 +95,42 @@ pub fn read(conn: &mut PgConnection) -> Result<Vec<Page>, diesel::result::Error>
     page::table.load::<Page>(conn)
 }
 
-pub fn read_by_id(conn: &mut PgConnection, id: i32) -> Result<Page, diesel::result::Error> {
+pub fn expand(page: Page, background: models::background::Background) -> ExpandedPage {
+    ExpandedPage {
+        page: page,
+        background: background,
+    }
+}
+
+pub fn read_by_id(conn: &mut PgConnection, id: i32) -> Result<ExpandedPage, diesel::result::Error> {
     page::table
+        .inner_join(background::table.on(page::background_id.eq(background::id)))
         .filter(page::id.eq(id))
         .filter(page::deleted_at.is_null())
-        .first::<Page>(conn)
+        .select((
+            Page::as_select(),
+            models::background::Background::as_select(),
+        ))
+        .first(conn)
+        .map(|(page, background)| expand(page, background))
 }
 
 pub fn read_by_id_and_user_id(
     conn: &mut PgConnection,
     id: i32,
     user_id: i32,
-) -> Result<Page, diesel::result::Error> {
+) -> Result<ExpandedPage, diesel::result::Error> {
     page::table
+        .inner_join(background::table.on(page::background_id.eq(background::id)))
         .filter(page::id.eq(id))
         .filter(page::deleted_at.is_null())
         .filter(page::user_id.eq(user_id))
-        .first::<Page>(conn)
+        .select((
+            Page::as_select(),
+            models::background::Background::as_select(),
+        ))
+        .first(conn)
+        .map(|(page, background)| expand(page, background))
 }
 
 pub fn delete(conn: &mut PgConnection, page: &Page) -> QueryResult<usize> {

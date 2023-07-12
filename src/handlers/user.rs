@@ -5,12 +5,11 @@ use warp::{reject, Rejection, Reply};
 
 pub async fn profile(
     context: Context,
-    user: models::user::User,
-    _session: models::session::Session,
+    expanded_user: models::user::ExpandedUser,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
 
-    let pages = models::page::read_pages_by_user_id(&mut conn, user.id)
+    let pages = models::page::read_pages_by_user_id(&mut conn, expanded_user.user.id)
         .map_err(|e| {
             log::error!("{:?}", e);
             warp::reject::not_found()
@@ -18,19 +17,19 @@ pub async fn profile(
         .iter()
         .map(|page| views::page::list_item(page))
         .collect::<String>();
-    let profile_html = views::user::profile(user).replace("{pages}", &pages);
+    let profile_html = views::user::profile(expanded_user.user, expanded_user.background)
+        .replace("{pages}", &pages);
 
     Ok(warp::reply::html(profile_html))
 }
 
 pub async fn profile_with_cookie(
     context: Context,
-    user: models::user::User,
-    session: models::session::Session,
+    expanded_user: models::user::ExpandedUser,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
 
-    let pages = models::page::read_pages_by_user_id(&mut conn, user.id)
+    let pages = models::page::read_pages_by_user_id(&mut conn, expanded_user.user.id)
         .map_err(|e| {
             log::error!("{:?}", e);
             warp::reject::not_found()
@@ -38,12 +37,13 @@ pub async fn profile_with_cookie(
         .iter()
         .map(|page| views::page::list_item(page))
         .collect::<String>();
-    let profile_html = views::user::profile(user).replace("{pages}", &pages);
+    let profile_html = views::user::profile(expanded_user.user, expanded_user.background)
+        .replace("{pages}", &pages);
 
     Ok(warp::reply::with_header(
         warp::reply::html(profile_html),
         "Set-Cookie",
-        format!("session={}; path=/", session.id),
+        format!("session={}; path=/", expanded_user.session.id),
     ))
 }
 

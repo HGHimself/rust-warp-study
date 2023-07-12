@@ -1,5 +1,8 @@
 use crate::{
-    models, server::Context, utils::now, DuplicateResource, NotAuthorized, NotFound, OldCookie,
+    models::{self, user::ExpandedUser},
+    server::Context,
+    utils::now,
+    DuplicateResource, NotAuthorized, NotFound, OldCookie,
 };
 use diesel::result::{DatabaseErrorKind, Error::DatabaseError};
 use warp::{
@@ -17,7 +20,7 @@ pub fn logout() -> BoxedFilter<()> {
         .boxed()
 }
 
-pub fn signup() -> BoxedFilter<(Context, models::user::User, models::session::Session)> {
+pub fn signup() -> BoxedFilter<(Context, models::user::ExpandedUser)> {
     warp::path("signup")
         .and(warp::path::end())
         .and(warp::post())
@@ -30,7 +33,7 @@ pub fn signup() -> BoxedFilter<(Context, models::user::User, models::session::Se
         .boxed()
 }
 
-pub fn login() -> BoxedFilter<(Context, models::user::User, models::session::Session)> {
+pub fn login() -> BoxedFilter<(Context, models::user::ExpandedUser)> {
     warp::path("login")
         .and(warp::path::end())
         .and(warp::post())
@@ -43,7 +46,7 @@ pub fn login() -> BoxedFilter<(Context, models::user::User, models::session::Ses
         .boxed()
 }
 
-pub fn get_by_cookie() -> BoxedFilter<(Context, models::user::User, models::session::Session)> {
+pub fn get_by_cookie() -> BoxedFilter<(Context, models::user::ExpandedUser)> {
     warp::path::end()
         .and(warp::get())
         .and(authenticate_cookie())
@@ -53,21 +56,28 @@ pub fn get_by_cookie() -> BoxedFilter<(Context, models::user::User, models::sess
 async fn with_user_by_credentials(
     context: Context,
     credentials: models::user::UserCredentialsApi,
-) -> Result<(Context, models::user::User), warp::Rejection> {
+) -> Result<(Context, models::user::User, models::background::Background), warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
     log::info!("Looking for user {}", credentials.username);
-    let user = models::user::read_by_credentials(&mut conn, credentials)
+    let (user, background) = models::user::read_by_credentials(&mut conn, credentials)
         .map_err(|_| reject::custom(NotFound))?;
-    Ok((context, user))
+    Ok((context, user, background))
 }
 
 async fn insert_new_user(
     context: Context,
     new_user: models::user::NewUserApi,
-) -> Result<(Context, models::user::User), warp::Rejection> {
+) -> Result<(Context, models::user::User, models::background::Background), warp::Rejection> {
     log::info!("Saving User");
     let mut conn = context.db_conn.get_conn();
-    let user = models::user::NewUser::new(new_user.into())
+    let background = models::background::random_bg()
+        .insert(&mut conn)
+        .map_err(|e| {
+            log::error!("{:?}", e);
+            warp::reject()
+        })?;
+
+    let user = models::user::NewUser::new(new_user.into(), background.id)
         .insert(&mut conn)
         .map_err(|e| {
             log::error!("{:?}", e);
@@ -79,7 +89,7 @@ async fn insert_new_user(
             }
         })?;
     log::info!("Saved User");
-    Ok((context, user))
+    Ok((context, user, background))
 }
 
 pub fn signup_form() -> BoxedFilter<()> {
@@ -99,13 +109,19 @@ pub fn login_form() -> BoxedFilter<()> {
 async fn with_new_session(
     context: Context,
     user: models::user::User,
-) -> Result<(Context, models::user::User, models::session::Session), warp::Rejection> {
+    background: models::background::Background,
+) -> Result<(Context, models::user::ExpandedUser), warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
     let session = models::session::NewSession::new(user.id)
         .insert(&mut conn)
         .map_err(|_| warp::reject::custom(DuplicateResource))?;
 
-    Ok((context, user, session))
+    let expanded_user = ExpandedUser {
+        user,
+        background,
+        session,
+    };
+    Ok((context, expanded_user))
 }
 
 async fn clear_session(
@@ -120,19 +136,24 @@ async fn clear_session(
 async fn with_user_from_cookie(
     context: Context,
     session_id: i32,
-) -> Result<(Context, models::user::User, models::session::Session), warp::Rejection> {
+) -> Result<(Context, models::user::ExpandedUser), warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
     log::info!("Session ID: {}", session_id);
-    let (user, session) = models::user::read_user_by_session(&mut conn, session_id)
+    let expanded_user = models::user::read_user_by_session(&mut conn, session_id)
         .map_err(|_| warp::reject::custom(NotAuthorized))?;
-    log::info!("Recognized user {:?} from {:?}", user, session);
+    log::info!(
+        "Recognized user {:?} from {:?}",
+        expanded_user.user,
+        expanded_user.session
+    );
 
-    if session.valid_until < now() {
-        models::session::delete(&mut conn, &session).map_err(|_| warp::reject::custom(NotFound))?;
+    if expanded_user.session.valid_until < now() {
+        models::session::delete(&mut conn, &expanded_user.session)
+            .map_err(|_| warp::reject::custom(NotFound))?;
         return Err(warp::reject::custom(OldCookie));
     }
 
-    Ok((context, user, session))
+    Ok((context, expanded_user))
 }
 
 async fn with_session_from_cookie(
@@ -147,8 +168,7 @@ async fn with_session_from_cookie(
     Ok((context, session))
 }
 
-pub fn authenticate_cookie() -> BoxedFilter<(Context, models::user::User, models::session::Session)>
-{
+pub fn authenticate_cookie() -> BoxedFilter<(Context, models::user::ExpandedUser)> {
     warp::any()
         .and(filters::ext::get::<Context>())
         .and(warp::cookie("session"))

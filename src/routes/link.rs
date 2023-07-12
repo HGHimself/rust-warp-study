@@ -28,13 +28,12 @@ pub fn get_by_id() -> BoxedFilter<(
 async fn with_link(
     id: i32,
     context: Context,
-    user: models::user::User,
-    _session: models::session::Session,
+    expanded_user: models::user::ExpandedUser,
 ) -> Result<(Context, models::user::User, models::link::Link), warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
     log::info!("Looking for link with id of {}", id);
     let link = models::link::read_by_id(&mut conn, id).map_err(|_| reject::custom(NotFound))?;
-    Ok((context, user, link))
+    Ok((context, expanded_user.user, link))
 }
 
 async fn with_pages_containing_link(

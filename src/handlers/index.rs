@@ -7,10 +7,10 @@ pub async fn index() -> Result<impl warp::Reply, Infallible> {
 
 pub async fn index_authenticated(
     _context: Context,
-    user: models::user::User,
-    _session: models::session::Session,
+    expanded_user: models::user::ExpandedUser,
 ) -> Result<impl warp::Reply, Infallible> {
     Ok(warp::reply::html(views::body::index_authenticated(
-        &user, "",
+        &expanded_user.user,
+        "",
     )))
 }

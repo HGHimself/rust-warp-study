@@ -4,7 +4,7 @@ use diesel::prelude::*;
 
 const SESSION_DURATION_MINUTES: i64 = 60;
 
-#[derive(Debug, Identifiable, Associations, Selectable, Queryable, AsChangeset)]
+#[derive(Clone, Debug, Identifiable, Associations, Selectable, Queryable, AsChangeset)]
 #[diesel(belongs_to(models::user::User))]
 #[diesel(table_name = session)]
 pub struct Session {

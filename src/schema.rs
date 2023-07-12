@@ -38,6 +38,7 @@ table! {
         created_at -> Timestamp,
         updated_at -> Nullable<Timestamp>,
         deleted_at -> Nullable<Timestamp>,
+        background_id -> Int4,
     }
 }
 
@@ -72,11 +73,14 @@ table! {
         created_at -> Timestamp,
         updated_at -> Nullable<Timestamp>,
         deleted_at -> Nullable<Timestamp>,
+        background_id -> Int4,
     }
 }
 
 joinable!(link -> user (creator_user_id));
+joinable!(page -> background (background_id));
 joinable!(page_link -> link (link_id));
 joinable!(page_link -> page (page_id));
+joinable!(user -> background (background_id));
 
 allow_tables_to_appear_in_same_query!(background, link, page, page_link, session, user,);
