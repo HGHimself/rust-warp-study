@@ -1,18 +1,21 @@
-<div class="crumbs"><a href="/user">{user.username}</a>&gt;<a href="/link/{link.id}">{link.url}</a></div>
-<h3 class="link-page-title">Explore pages</h3>
-<p>These are all the pages that contain this link. Find out what else people have been bookmarking.</p>
-<div class="page-link">
-    <img src="{link.img_url}" class="link-banner" />
-    <div>
-        <a href="{link.url}" target="_blank" class="external fit-content">
-            <h3>
-                <img src="{link.favicon}" alt="{link.name}" class="favicon"
-                    onerror="if (this.src != '/favicon.ico') this.src = '/favicon.ico';" />
-                {link.title}
-            </h3>
-        </a>
-        <h6>{link.description}</h6>
+<div class="crumbs"><a href="/user">{user.username}</a> | <a href="/link/{link.id}">{link.url}</a></div>
+<div class="yellow-neubrutalist-card margin-bottom">
+    <h4 class="page-title">Explore new pages</h4>
+    <div class="page-link">
+        <img src="{link.img_url}" class="link-banner" alt="banner"
+            onerror="if (this.src != '/android-chrome-192x192.png') this.src = '/android-chrome-192x192.png';" />
+        <div>
+            <a href="{link.url}" target="_blank" class="external fit-content">
+                <h4>
+                    <img src="{link.favicon}" alt="{link.name}" class="favicon"
+                        onerror="if (this.src != '/favicon.ico') this.src = '/favicon.ico';" />
+                    {link.title}
+                </h4>
+            </a>
+            <h6>{link.description}</h6>
+        </div>
     </div>
+    <p>These are all the pages that contain this link. Find out what else people have been bookmarking.</p>
 </div>
 <ul class="page-list">
     {pages}

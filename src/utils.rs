@@ -50,6 +50,7 @@ pub fn get_metadata_from_url(url: &str) -> SiteMetadata {
             let title = Some(object.title);
             let description = object.description;
             let img_url = object.images.first().map(|img| img.url.clone());
+
             SiteMetadata {
                 title: title,
                 description: description,
@@ -75,12 +76,12 @@ fn test_encryption() {
     assert!(verify("password", &h_new));
 }
 
-// #[test]
-// fn opengraph_scrape() {
-//     match opengraph::scrape("https://popeyemagazine.jp/", Default::default()) {
-//         Ok(object) => {
-//             assert_eq!(format!("{:?}", object), "hg");
-//         }
-//         Err(_) => println!("error occured"),
-//     }
-// }
+#[test]
+fn opengraph_scrape() {
+    match opengraph::scrape("https://popeyemagazine.jp/", Default::default()) {
+        Ok(object) => {
+            assert_eq!(format!("{:?}", object), "hg");
+        }
+        Err(_) => println!("error occured"),
+    }
+}

@@ -163,5 +163,6 @@ pub fn read_pages_by_link(
         .inner_join(page::table)
         .select(Page::as_select())
         .filter(page_link::deleted_at.is_null())
+        .filter(page::deleted_at.is_null())
         .load(conn)
 }

@@ -1,11 +1,11 @@
-<div class="crumbs"><a href="/user">{user.username}</a>&gt;<a href="/page/{page.id}">{page.name}</a></div>
-<div class="page-top">
-    <div class="page-title">
-        <h2>{page.name}</h2>
+<div class="crumbs"><a href="/user">{user.username}</a> | <a href="/page/{page.id}">{page.name}</a></div>
+<div class="page-authenticated">
+    <div class="page-title green-neubrutalist-card">
+        <h3>{page.name}</h3>
         <p>{page.description}</p>
     </div>
-    <section class="new-link">
-        <h3>Add new link</h3>
+    <section class="new-link neubrutalist-card">
+        <h6>Add new link</h6>
         <form action='/page/{page.id}/link' method='POST'>
             <fieldset>
                 <legend>Link Details</legend>
@@ -26,9 +26,6 @@
             </fieldset>
         </form>
     </section>
-</div>
-<div class="item">
-    <h4>Links</h4>
     <ul class="links authenticated">
         {links}
     </ul>

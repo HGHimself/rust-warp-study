@@ -46,27 +46,33 @@ impl Link {
                 "{link.img_url}",
                 match &self.img_url {
                     Some(url) => &url,
-                    None => "",
+                    None => "/missing.png",
                 },
             )
             .replace(
                 "{link.title}",
                 match &self.title {
-                    Some(url) => &url,
-                    None => "",
+                    Some(title) => {
+                        if "" == title {
+                            &self.url
+                        } else {
+                            title
+                        }
+                    }
+                    None => &self.url,
                 },
             )
             .replace(
                 "{link.description}",
                 match &self.description {
-                    Some(url) => &url,
+                    Some(description) => &description,
                     None => "",
                 },
             )
             .replace(
                 "{link.favicon}",
                 &(match url::Url::parse(&self.url) {
-                    Err(_) => String::from(""),
+                    Err(_) => String::from("/missing.png"),
                     Ok(mut url) => {
                         url.set_path("favicon.ico");
                         url.set_query(None);

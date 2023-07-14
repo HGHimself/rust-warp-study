@@ -1,5 +1,7 @@
-<li>
-    <a href="/page/{page.id}">{page.name}</a>
-    <span>{page.description}</span>
+<li class="page-list-item authenticated" data-sal="zoom-in">
+    <div class="neubrutalist-card">
+        <a href="/page/{page.id}" class="page-link">{page.name}</a>
+        <span>{page.description}</span>
+    </div>
     <a hx-delete="/page/{page.id}" hx-target="body" class="delete">✕</a>
 </li>

@@ -1,0 +1,19 @@
+main.content {
+    padding-left: 1rem;
+}
+
+ul.page-list {
+    grid-template-columns: repeat(1, 1fr);
+}
+
+.home {
+    display: block;
+}
+
+.page-authenticated {
+    display: block;
+}
+
+ul.links, ul.links.authenticated {
+    grid-template-columns: repeat(1, 1fr);
+}

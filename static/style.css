@@ -44,12 +44,16 @@ main {
 }
 
 .error {
-  color: rgb(255, 0, 0);
+  color: #EE352E;
 }
 
 .title {
   font-size: 48px;
   margin: 0;
+}
+
+.title a {
+  text-decoration: none;
 }
 
 header {
@@ -101,7 +105,16 @@ h2 {
 }
 
 h3 {
+  font-size: 2.5rem;
+}
+
+h4 {
   font-size: 2rem;
+}
+
+h5 {
+  font-size: 1.5rem;
+  font-weight: normal;
 }
 
 h6 {
@@ -110,7 +123,7 @@ h6 {
 }
 
 p {
-  font-size: 1rem;
+  font-size: 1.2rem;
   max-width: 500px;
 }
 
@@ -186,43 +199,51 @@ p {
   border-radius: 5px;
   width: fit-content;
   margin: 1rem;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .card div {
-  border: 1.5px dashed white;
+  border: 1.5px dotted white;
   border-radius: 5px;
   padding: 2rem;
   max-width: 450px;
 }
 
 form {
-  background-color: #ffffffee;
   width: min-content;
   padding: 0.5rem;
   border-radius: 5px;
 }
 
 fieldset {
-  width: 350px;
+  max-width: 350px;
   display: flex;
   flex-direction: column;
   border: 1.5px dashed black;
   border-radius: 5px;
+  padding: 1rem 2rem;
 }
 
 fieldset label {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+fieldset legend {
+  font-weight: bold;
+  font-size: 1.25rem;
 }
 
 fieldset input {
   border: none;
-  border-radius: 5px;
   background-color: inherit;
-  border: 1.5px dashed black;
+  border-bottom: 1.5px dashed black;
   padding: 0.2rem 0.5rem;
+  font-size: 1rem;
 }
 
 fieldset button {
@@ -236,14 +257,24 @@ fieldset button {
 
 .button-link {
   padding: 0.5rem;
-  border: 1.5px dashed black;
   border-radius: 5px;
   text-decoration: none;
+  margin: 1.5px;
+  border: none;
+}
+
+button[type=submit] {
+  text-transform: uppercase;
+  font-weight: bold;
+  border: 1px solid currentColor;
+  padding: 0.5rem;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 fieldset a {
   margin-left: 1rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 a:visited {
@@ -252,7 +283,6 @@ a:visited {
 
 .normalized {
   color: currentColor;
-  text-decoration: none;
 }
 
 .favicon {
@@ -270,50 +300,6 @@ a:visited {
 li {
   list-style-type: none;
   display: flex;
-}
-
-li.link-wrapper {
-  display: flex;
-  align-items: flex-start;
-}
-
-li .link {
-  display: flex;
-  background-color: #ffffffee;
-  padding: 2rem 3rem 2rem 3rem;
-  border-radius: 100px;
-  margin: 5px;
-  text-align: center;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* li .link:hover {
-  border: 5px solid #ffb300;
-  box-shadow: 0px 0px 5px 2.5px #00ffd5, inset 0px 0px 1px #00ffd5;
-  margin: 0px;
-} */
-
-li .link a.bookmark {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 1.2rem;
-}
-
-li .link .link-action {
-  display: flex;
-  justify-content: space-between;
-}
-
-ul.links {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  row-gap: 150px;
-}
-
-ul.authenticated {
-  grid-template-columns: repeat(2, 1fr);
 }
 
 .explore {
@@ -341,26 +327,82 @@ ul.actions li {
   font-size: 1.2rem;
 }
 
-.page-link {
-  width: 900px;
-  margin-top: 2rem;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
+.neubrutalist-card {
   background-color: #ffffffee;
   border-radius: 5px;
+  max-width: 900px;
+  padding: 2rem;
+  border: 3px solid black;
+  box-shadow: -3px 4px 0px 1px black;
 }
 
+.blue-neubrutalist-card {
+  background-color: #0008ff;
+  border-radius: 5px;
+  max-width: 900px;
+  color: white;
+  padding: 2rem;
+  border: 3px solid black;
+  box-shadow: -3px 4px 0px 1px black;
+}
+
+.yellow-neubrutalist-card {
+  background-color: #fccc0a;
+  border-radius: 5px;
+  max-width: 900px;
+  color: black;
+  padding: 2rem;
+  border: 3px solid black;
+  box-shadow: -3px 4px 0px 1px black;
+}
+
+.green-neubrutalist-card {
+  background-color: #2a9400;
+  border-radius: 5px;
+  max-width: 900px;
+  color: white;
+  padding: 2rem;
+  border: 3px solid black;
+  box-shadow: -3px 4px 0px 1px black;
+}
+
+.white-card {
+  background-color: #ffffffee;
+  border-radius: 5px;
+  max-width: 900px;
+  padding: 2rem;
+}
+
+.dark-card {
+  background-color: #454545ee;
+  border-radius: 5px;
+  color: white;
+  max-width: 900px;
+  padding: 2rem;
+}
+
+.dark-card a:hover {
+  color: #FCCC0A;
+  /* color: #00933C; */
+}
+
+.page-link {
+  width: fit-content;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
 
 .page-link .link-banner {
   width: 30%;
   min-width: 300px;
   max-width: 700px;
+  margin-left: 1rem;
 }
 
 .page-link div {
   max-width: 500px;
-  margin-left: 1rem;
+  margin-left: 2rem;
 }
 
 .delete {
@@ -369,38 +411,73 @@ ul.actions li {
 }
 
 .delete:hover {
-  background-color: red;
+  background-color: #EE352E;
   color: white;
   border-radius: 100px;
 }
-.page-title {
-  background-color: #ffffffee;
-  width: 900px;
-  padding: 1rem;
-  border-radius: 5px;
+
+.page-authenticated {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 3rem;
 }
 
-.page-title p {
-  font-size: 1.5rem;
-  width: 500px;
+.new-link, .create-page {
+  margin: auto;
+}
+
+.page-title {
+  margin-bottom: 2rem;
+}
+
+li.link-wrapper {
+  display: flex;
+  align-items: flex-start;
+}
+
+li .link {
+  display: flex;
+  text-align: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* li .link:hover {
+  border: 5px solid #ffb300;
+  box-shadow: 0px 0px 5px 2.5px #00ffd5, inset 0px 0px 1px #00ffd5;
+  margin: 0px;
+} */
+
+li .link a.bookmark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.2rem;
+}
+
+li .link .link-action {
+  display: flex;
+  justify-content: space-between;
+}
+
+ul.links {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  row-gap: 3.5rem;
+}
+
+ul.authenticated {
+  grid-template-columns: repeat(2, 1fr);
+  grid-column: 1 / 3;
 }
 
 a.external span::after {
-  position: relative;
+  /* position: relative;
   content: "°";
   margin-left: 0.1em;
   font-size: 90%;
-  top: -0.1em;
+  top: -0.1em; */
 }
-
-.external {
-  text-decoration: none;
-}
-
-/* .signup,
-.login, .create-page {
-
-} */
 
 .single-form {
   margin: auto;
@@ -410,26 +487,36 @@ a.external span::after {
 
 ul.page-list {
   display: grid;
-  grid-template-columns: repeat(2, 40%);
+  grid-template-columns: repeat(2, 1fr);
   grid-gap: 3rem;
+  row-gap: 5rem;
   align-items: start;
+  max-width: 900px;
 }
 
-ul.page-list li {
-  padding: 2rem;
+/* ul.page-list li.page-list-item {
   display: flex;
   flex-direction: column;
-  background-color: #ffffffee;
-  border-radius: 5px;
   margin-top: 2rem;
+} */
+
+ul.page-list li.authenticated {
+  display: flex;
+  align-items: flex-start;
 }
 
-ul.page-list li a {
-  font-size: 2rem;
+ul.page-list li div {
+  display: flex;
+  flex-direction: column;
+}
+
+ul.page-list li a.page-link {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
 }
 
 ul.page-list li span {
-  font-size: 1.2rem;
+  font-size: 1rem;
   max-width: 300px;
 }
 
@@ -446,13 +533,8 @@ ul.page-list li span {
   margin-left: 0.5rem;
 }
 
-.page-top {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  align-items: center;
-  padding: 1rem;
-  border-radius: 5px;
+.crumbs a:hover {
+  color: white;
 }
 
 .link-page-title {
@@ -461,4 +543,12 @@ ul.page-list li span {
 
 .spaceous {
   margin: 2rem;
+}
+
+.margin-bottom {
+  margin-bottom: 2rem;
+}
+
+.margin-top {
+  margin-top: 3rem;
 }
