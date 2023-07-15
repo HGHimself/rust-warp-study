@@ -16,6 +16,9 @@ pub struct Config {
     pub max_reqs: usize,
     pub is_mocking: bool,
     pub db_path: String,
+    pub tls: bool,
+    pub cert_path: Option<String>,
+    pub key_path: Option<String>,
 }
 
 impl Config {
@@ -40,12 +43,31 @@ impl Config {
 
         let db_path = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
+        // prepare tls if necessary
+        let tls = env::var("ENABLE_TLS")
+            .expect("ENABLE_TLS must be set")
+            .parse()
+            .expect("ENABLE_TLS must be true or false");
+
+        let cert_path;
+        let key_path;
+        if tls {
+            cert_path = Some(env::var("CERT_PATH").expect("CERT_PATH must be set"));
+            key_path = Some(env::var("KEY_PATH").expect("KEY_PATH must be set"));
+        } else {
+            cert_path = None;
+            key_path = None;
+        }
+
         Config {
             app_addr,
             max_conn,
             max_reqs,
             is_mocking,
             db_path,
+            tls,
+            cert_path,
+            key_path,
         }
     }
 }

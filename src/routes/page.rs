@@ -56,14 +56,6 @@ pub fn delete() -> BoxedFilter<(Context, models::user::ExpandedUser)> {
         .boxed()
 }
 
-pub fn create_form() -> BoxedFilter<(Context, models::user::ExpandedUser)> {
-    warp::path("create")
-        .and(warp::path::end())
-        .and(warp::get())
-        .and(routes::user::authenticate_cookie())
-        .boxed()
-}
-
 pub fn create_link() -> BoxedFilter<(
     Context,
     models::user::ExpandedUser,

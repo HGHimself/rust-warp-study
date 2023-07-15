@@ -2,7 +2,7 @@ use rust_warp_study::{config::Config, server::serve};
 use tracing_subscriber::fmt::format::FmtSpan;
 
 use std::{
-    net::{SocketAddr, TcpListener},
+    net::{SocketAddr},
     sync::Arc,
 };
 
@@ -33,7 +33,5 @@ async fn main() {
         .parse::<SocketAddr>()
         .expect("Could not parse Addr");
 
-    let listener = TcpListener::bind(socket_address).unwrap();
-
-    serve(listener, config).await.expect("server error");
+    serve(socket_address, config).await.expect("server error");
 }

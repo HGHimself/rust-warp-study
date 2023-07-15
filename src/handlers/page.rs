@@ -1,6 +1,5 @@
-use crate::{error_reply, models, server::Context, views, DuplicateResourceWithData};
+use crate::{error_reply, handlers, models, server::Context, views, DuplicateResourceWithData};
 use hyper::StatusCode;
-use std::convert::Infallible;
 
 pub async fn view(
     context: Context,
@@ -57,7 +56,7 @@ fn links_to_list(
             })
             .collect::<String>()
     } else {
-        String::from("<h3 class='empty-error'>This page does not have any links, yet.</h3>")
+        String::from("<div class='neubrutalist-card'><h5 class='empty-error'>This page does not have any links, yet.</h5></div>")
     }
 }
 
@@ -77,20 +76,9 @@ fn links_to_list_authenticated(
             .collect::<String>()
     } else {
         String::from(
-            "<h3 class='empty-error'>You have no links yet! Add one using the form above.</h3>",
+            "<div class='neubrutalist-card'><h5 class='empty-error'>You have no links yet! Add one using the form above.</h5></div>",
         )
     }
-}
-
-pub async fn create_page(
-    _context: Context,
-    expanded_user: models::user::ExpandedUser,
-) -> Result<impl warp::Reply, Infallible> {
-    Ok(warp::reply::html(views::page::create_page(
-        expanded_user.user,
-        expanded_user.background,
-        "",
-    )))
 }
 
 pub async fn handle_create_link_error(
@@ -122,10 +110,21 @@ pub async fn handle_create_page_error(
     err: warp::Rejection,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     if let Some(resource) = err.find::<DuplicateResourceWithData>() {
-        if let Some(expanded_user) = resource.expanded_user.clone() {
-            let html = views::page::create_page(
+        if let Some(expanded_user) = resource.expanded_user.clone() && let Some(context) = resource.context.clone() {
+            let mut conn = context.db_conn.get_conn();
+
+            let pages =
+            models::page::read_pages_by_user_id(&mut conn, expanded_user.user.id).map_err(|e| {
+                log::error!("{:?}", e);
+                warp::reject::not_found()
+            })?;
+
+            let pages_html = handlers::user::pages_authenticated(pages);
+
+            let html = views::user::profile(
                 expanded_user.user,
                 expanded_user.background,
+                pages_html,
                 "Error: Page already exists with this name",
             );
             error_reply(StatusCode::CONFLICT, html)

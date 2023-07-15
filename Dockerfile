@@ -1,5 +1,5 @@
 # Build image
-FROM rust:1.60 as builder
+FROM rustlang/rust:nightly as builder
 
 # Run dummy build to build and cache dependencies that only depends on Cargo.toml and Cargo.lock
 WORKDIR /usr/src
@@ -25,4 +25,5 @@ COPY --from=builder  /usr/src/rust-warp-study/target/release/rust-warp-study /us
 
 WORKDIR /usr/rust-warp-study
 COPY ./.env ./.env
+COPY ./static ./static
 CMD ["rust-warp-study"]

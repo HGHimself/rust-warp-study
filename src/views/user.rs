@@ -1,11 +1,18 @@
 use crate::{models, views};
 use std::include_str;
 
-pub fn profile(user: models::user::User, background: models::background::Background) -> String {
+pub fn profile(
+    user: models::user::User,
+    background: models::background::Background,
+    pages_html: String,
+    message: &str,
+) -> String {
     views::body::document_authenticated(
         String::from("Profile"),
         &user,
         user.inject_values(include_str!("profile.html"))
+            .replace("{pages}", &pages_html)
+            .replace("{error}", message)
             .replace("{background}", &background.to_call()),
     )
 }

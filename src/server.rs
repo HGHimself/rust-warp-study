@@ -3,7 +3,9 @@ use crate::{
     config::Config,
     db_conn::DbConn,
     handle_final_rejection, handle_rejection, handlers, routes,
+    utils::{load_certs, load_private_key},
 };
+use hyper_rustls::{TlsAcceptor};
 
 use tower_http::{
     add_extension::AddExtensionLayer,
@@ -14,8 +16,13 @@ use tower_http::{
 };
 
 use bytes::Bytes;
-use hyper::{header, server::conn::AddrStream, service::make_service_fn, Body, Response, Server};
-use std::{convert::Infallible, net::TcpListener, sync::Arc, time::Duration};
+use hyper::{
+    header,
+    server::conn::{AddrIncoming, AddrStream},
+    service::make_service_fn,
+    Body, Response, Server,
+};
+use std::{convert::Infallible, net::SocketAddr, sync::Arc, time::Duration};
 use tokio::{sync::Semaphore, time::timeout};
 use tower::{limit::GlobalConcurrencyLimitLayer, ServiceBuilder};
 use warp::Filter;
@@ -23,7 +30,7 @@ use warp::Filter;
 const CONN_TIMEOUT: u64 = 2 * 60;
 const REQ_TIMEOUT: u64 = 2 * 60;
 
-pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), warp::hyper::Error> {
+pub async fn serve(addr: SocketAddr, config: Arc<Config>) -> Result<(), warp::hyper::Error> {
     let conns_limit = Arc::new(Semaphore::new(config.clone().max_conn));
     let reqs_limit = GlobalConcurrencyLimitLayer::new(config.clone().max_reqs);
 
@@ -38,7 +45,7 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
             .map(|reply| warp::reply::with_header(reply, "Access-Control-Allow-Origin", "*")))
         .recover(handle_final_rejection);
 
-    let app = make_service_fn(move |_stream: &AddrStream| {
+    let app = make_service_fn(move |_| {
         let conns_limit = conns_limit.clone();
         let reqs_limit = reqs_limit.clone();
 
@@ -82,10 +89,27 @@ pub async fn serve(listener: TcpListener, config: Arc<Config>) -> Result<(), war
         }
     });
 
-    let addr = listener.local_addr().unwrap();
-    tracing::info!("👂 Listening on {}", addr);
+    log::info!("👂 Listening on {}", addr);
 
+    // log::info!("🔐 TLS Enabled!");
+    // // Load public certificate.
+    // let certs = load_certs(&config.cert_path.clone().unwrap()).unwrap();
+    // // Load private key.
+    // let key = load_private_key(&config.key_path.clone().unwrap()).unwrap();
+    // // Build TLS configuration.
+    // // Create a TCP listener via tokio.
+    // let incoming = AddrIncoming::bind(&addr)?;
+    // let acceptor = TlsAcceptor::builder()
+    //     .with_single_cert(certs, key)
+    //     .unwrap()
+    //     .with_all_versions_alpn()
+    //     .with_incoming(incoming);
+    // Server::builder(acceptor).serve(app).await?;
+
+    // otherwise serve normally
+    let listener = std::net::TcpListener::bind(addr).unwrap();
     Server::from_tcp(listener).unwrap().serve(app).await?;
+    
 
     Ok(())
 }

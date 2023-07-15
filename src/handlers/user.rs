@@ -22,12 +22,12 @@ pub async fn profile(
             .collect::<String>()
     } else {
         String::from(
-            "<h3 class='empty-error'>You have no pages yet! Add one using the form above.</h3>",
+            "<div class='neubrutalist-card'><h5 class='empty-error'>You have no pages yet! Add one using the form above.</h5></div>",
         )
     };
 
-    let profile_html = views::user::profile(expanded_user.user, expanded_user.background)
-        .replace("{pages}", &pages_html);
+    let profile_html =
+        views::user::profile(expanded_user.user, expanded_user.background, pages_html, "");
 
     Ok(warp::reply::html(profile_html))
 }
@@ -44,25 +44,29 @@ pub async fn profile_with_cookie(
             warp::reject::not_found()
         })?;
 
-    let pages_html = if pages.len() != 0 {
-        pages
-            .iter()
-            .map(|page| views::page::list_item_authenticated(page))
-            .collect::<String>()
-    } else {
-        String::from(
-            "<h3 class='empty-error'>You have no pages yet! Add one using the form above.</h3>",
-        )
-    };
+    let pages_html = pages_authenticated(pages);
 
-    let profile_html = views::user::profile(expanded_user.user, expanded_user.background)
-        .replace("{pages}", &pages_html);
+    let profile_html =
+        views::user::profile(expanded_user.user, expanded_user.background, pages_html, "");
 
     Ok(warp::reply::with_header(
         warp::reply::html(profile_html),
         "Set-Cookie",
         format!("session={}; path=/", expanded_user.session.id),
     ))
+}
+
+pub fn pages_authenticated(pages: Vec<models::page::Page>) -> String {
+    if pages.len() != 0 {
+        pages
+            .iter()
+            .map(|page| views::page::list_item_authenticated(page))
+            .collect::<String>()
+    } else {
+        String::from(
+            "<div class='neubrutalist-card'><h5 class='empty-error'>You have no pages yet! Add one using the form above.</h5></div>",
+        )
+    }
 }
 
 pub async fn logout() -> Result<impl warp::Reply, Infallible> {

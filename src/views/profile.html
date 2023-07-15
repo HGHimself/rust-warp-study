@@ -7,10 +7,10 @@
         <p>Use these pages to organize your bookmarked links. A page will visible to users who have bookmarked the same link as you.</p>
     </div>
     <section class="create-page neubrutalist-card">
-        <h6>Create Page</h6>
+        <h6>Create new page</h6>
         <form action='/page' method='POST'>
             <fieldset>
-                <legend>New Page Details</legend>
+                <legend>Page details</legend>
                 <div>
                     <label>
                         <span>Name:</span>
@@ -24,9 +24,7 @@
                     </label>
                 </div>
                 <div class="error">{error}</div>
-                <div class="flex around">
-                    <button type='submit' class="button-link">Create</button>
-                </div>
+                <button type='submit' class="button-link">Create</button>
             </fieldset>
         </form>
     </section>
