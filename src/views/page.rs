@@ -35,14 +35,16 @@ pub fn view_authenticated(
     views::body::document_authenticated(
         expanded_page.page.name.clone(),
         &expanded_user.user,
-        expanded_user.user.inject_values(
-            &expanded_page
-                .page
-                .inject_values(include_str!("page-authenticated.html")),
-        )
-        .replace("{links}", &links_html)
-        .replace("{error}", message)
-        .replace("{background}", &expanded_page.background.to_call()),
+        expanded_user
+            .user
+            .inject_values(
+                &expanded_page
+                    .page
+                    .inject_values(include_str!("page-authenticated.html")),
+            )
+            .replace("{links}", &links_html)
+            .replace("{error}", message)
+            .replace("{background}", &expanded_page.background.to_call()),
     )
 }
 

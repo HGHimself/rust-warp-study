@@ -91,24 +91,24 @@ pub async fn serve(addr: SocketAddr, config: Arc<Config>) -> Result<(), warp::hy
 
     log::info!("👂 Listening on {}", addr);
 
-    log::info!("🔐 TLS Enabled!");
-    // Load public certificate.
-    let certs = load_certs(&config.cert_path.clone().unwrap()).unwrap();
-    // Load private key.
-    let key = load_private_key(&config.key_path.clone().unwrap()).unwrap();
-    // Build TLS configuration.
-    // Create a TCP listener via tokio.
-    let incoming = AddrIncoming::bind(&addr)?;
-    let acceptor = TlsAcceptor::builder()
-        .with_single_cert(certs, key)
-        .unwrap()
-        .with_all_versions_alpn()
-        .with_incoming(incoming);
-    Server::builder(acceptor).serve(app).await?;
+    // log::info!("🔐 TLS Enabled!");
+    // // Load public certificate.
+    // let certs = load_certs(&config.cert_path.clone().unwrap()).unwrap();
+    // // Load private key.
+    // let key = load_private_key(&config.key_path.clone().unwrap()).unwrap();
+    // // Build TLS configuration.
+    // // Create a TCP listener via tokio.
+    // let incoming = AddrIncoming::bind(&addr)?;
+    // let acceptor = TlsAcceptor::builder()
+    //     .with_single_cert(certs, key)
+    //     .unwrap()
+    //     .with_all_versions_alpn()
+    //     .with_incoming(incoming);
+    // Server::builder(acceptor).serve(app).await?;
 
-    // // otherwise serve normally
-    // let listener = std::net::TcpListener::bind(addr).unwrap();
-    // Server::from_tcp(listener).unwrap().serve(app).await?;
+    // otherwise serve normally
+    let listener = std::net::TcpListener::bind(addr).unwrap();
+    Server::from_tcp(listener).unwrap().serve(app).await?;
 
     Ok(())
 }

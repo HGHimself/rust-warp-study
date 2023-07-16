@@ -26,7 +26,7 @@ pub const MAX_LINK_COUNT: usize = 20;
 #[derive(Debug)]
 pub enum ResourceError {
     TooMany(ResourceErrorData),
-    Duplicate(ResourceErrorData)
+    Duplicate(ResourceErrorData),
 }
 
 #[derive(Debug)]

@@ -1,5 +1,5 @@
 use crate::{
-    error_reply, handlers, models, server::Context, views, ResourceError, ResourceErrorData
+    error_reply, handlers, models, server::Context, views, ResourceError, ResourceErrorData,
 };
 use hyper::StatusCode;
 
@@ -10,8 +10,7 @@ pub async fn view(
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let links = get_links(context, &expanded_page)?;
 
-    let page_html =
-        views::page::view(expanded_user, expanded_page, links, "");
+    let page_html = views::page::view(expanded_user, expanded_page, links, "");
 
     Ok(warp::reply::html(page_html))
 }
@@ -52,7 +51,10 @@ pub async fn handle_create_page_error(
     }
 }
 
-pub fn process_page_error(resource: &ResourceErrorData, message: &str) -> Result<impl warp::Reply, warp::Rejection> {
+pub fn process_page_error(
+    resource: &ResourceErrorData,
+    message: &str,
+) -> Result<impl warp::Reply, warp::Rejection> {
     if let Some(expanded_user) = resource.expanded_user.clone() 
     && let Some(expanded_page) = resource.expanded_page.clone() 
     && let Some(context) = resource.context.clone() {
@@ -74,9 +76,9 @@ pub fn process_page_error(resource: &ResourceErrorData, message: &str) -> Result
 
 pub fn process_profile_error(
     resource: &ResourceErrorData,
-    message: &str
+    message: &str,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-        if let Some(expanded_user) = resource.expanded_user.clone() 
+    if let Some(expanded_user) = resource.expanded_user.clone() 
         && let Some(context) = resource.context.clone() {
             let pages = handlers::user::get_pages(context, &expanded_user)?;
             let html = views::user::profile(
@@ -92,15 +94,16 @@ pub fn process_profile_error(
                 views::error::error(StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR"),
             )
         }
-    
 }
 
-fn get_links(context: Context, expanded_page: &models::page::ExpandedPage) -> Result<Vec<(models::link::Link, models::page_link::PageLink)>, warp::Rejection> {
+fn get_links(
+    context: Context,
+    expanded_page: &models::page::ExpandedPage,
+) -> Result<Vec<(models::link::Link, models::page_link::PageLink)>, warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
 
-    models::link::read_links_by_page(&mut conn, &expanded_page.page)
-        .map_err(|e| {
-            log::error!("{:?}", e);
-            warp::reject::not_found()
-        })
+    models::link::read_links_by_page(&mut conn, &expanded_page.page).map_err(|e| {
+        log::error!("{:?}", e);
+        warp::reject::not_found()
+    })
 }

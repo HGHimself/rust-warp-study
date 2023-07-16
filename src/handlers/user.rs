@@ -1,4 +1,4 @@
-use crate::{error_reply, models, server::Context, views, ResourceError, NotFound};
+use crate::{error_reply, models, server::Context, views, NotFound, ResourceError};
 use hyper::StatusCode;
 use std::convert::Infallible;
 use warp::{reject, Rejection, Reply};
@@ -30,13 +30,16 @@ pub async fn profile_with_cookie(
     ))
 }
 
-pub fn get_pages(context: Context, expanded_user: &models::user::ExpandedUser) -> Result<Vec<models::page::Page>, warp::Rejection> {
+pub fn get_pages(
+    context: Context,
+    expanded_user: &models::user::ExpandedUser,
+) -> Result<Vec<models::page::Page>, warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
 
     models::page::read_pages_by_user_id(&mut conn, expanded_user.user.id).map_err(|e| {
-            log::error!("{:?}", e);
-            warp::reject::not_found()
-        })
+        log::error!("{:?}", e);
+        warp::reject::not_found()
+    })
 }
 
 pub async fn logout() -> Result<impl warp::Reply, Infallible> {
