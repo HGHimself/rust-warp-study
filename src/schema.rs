@@ -83,4 +83,11 @@ joinable!(page_link -> link (link_id));
 joinable!(page_link -> page (page_id));
 joinable!(user -> background (background_id));
 
-allow_tables_to_appear_in_same_query!(background, link, page, page_link, session, user,);
+allow_tables_to_appear_in_same_query!(
+    background,
+    link,
+    page,
+    page_link,
+    session,
+    user,
+);

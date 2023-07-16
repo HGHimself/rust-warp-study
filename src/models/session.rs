@@ -90,6 +90,13 @@ pub fn delete(conn: &mut PgConnection, session: &Session) -> QueryResult<usize> 
         .execute(conn)
 }
 
+pub fn delete_by_user_id(conn: &mut PgConnection, user_id: i32) -> QueryResult<usize> {
+    diesel::update(session::dsl::session)
+        .filter(session::user_id.eq(user_id))
+        .set((session::deleted_at.eq(Some(now())),))
+        .execute(conn)
+}
+
 pub fn update(conn: &mut PgConnection, session: &mut Session) -> QueryResult<usize> {
     diesel::update(session::table)
         .set(&session.for_update())

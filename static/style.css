@@ -225,13 +225,13 @@ fieldset button {
   border-radius: 5px;
   text-decoration: none;
   font-weight: bold;
-  border: 1px solid currentColor;
+  border: 1px solid black;
 }
 
 button[type=submit] {
   text-transform: uppercase;
   font-weight: bold;
-  border: 1px solid currentColor;
+  border: 1px solid black;
   padding: 0.5rem;
   border-radius: 5px;
   cursor: pointer;
@@ -243,11 +243,11 @@ fieldset a {
 }
 
 a:visited {
-  color: currentColor;
+  color: black;
 }
 
 .normalized {
-  color: currentColor;
+  color: black;
 }
 
 .favicon {

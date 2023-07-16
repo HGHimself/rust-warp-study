@@ -162,7 +162,10 @@ async fn insert_new_page(
                         expanded_page: None,
                     })
                 }
-                _ => reject::reject(),
+                err => {
+                    log::error!("{:?}", err);
+                    warp::reject()
+                },
             }
         })?;
     log::info!("Saved Page");
@@ -206,9 +209,12 @@ async fn insert_new_link(
     let link = match models::link::read_by_url(&mut conn, new_link.url.clone()) {
         Err(diesel::NotFound) => models::link::NewLink::new(new_link, expanded_user.user.id)
             .insert(&mut conn)
-            .map_err(|_| reject::reject()),
+            .map_err(|err| {
+                log::error!("{:?}", err);
+                warp::reject()
+            }),
         Ok(link) => Ok(link),
-        _ => Err(warp::reject()),
+        err => {log::error!("{:?}", err); Err(warp::reject())},
     }?;
 
     models::page_link::NewPageLink::new(expanded_page.page.id, link.id, name)
@@ -221,7 +227,10 @@ async fn insert_new_link(
                     expanded_page: Some(expanded_page.clone()),
                 })
             }
-            _ => reject::reject(),
+            err => {
+                log::error!("{:?}", err);
+                warp::reject()
+            },
         })?;
 
     log::info!("Saved Link");

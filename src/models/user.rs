@@ -142,8 +142,6 @@ pub fn read_by_credentials(
         ))
         .first(conn)?;
 
-    log::info!("comparing {} {}", credentials.password, user.password);
-
     if verify(&credentials.password, &user.password) {
         Ok((user, background))
     } else {

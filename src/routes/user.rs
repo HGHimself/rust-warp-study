@@ -85,7 +85,10 @@ async fn insert_new_user(
                 DatabaseError(DatabaseErrorKind::UniqueViolation, _) => {
                     reject::custom(DuplicateResource)
                 }
-                _ => reject::reject(),
+                err => {
+                    log::error!("{:?}", err);
+                    warp::reject()
+                },
             }
         })?;
     log::info!("Saved User");
@@ -112,6 +115,13 @@ async fn with_new_session(
     background: models::background::Background,
 ) -> Result<(Context, models::user::ExpandedUser), warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
+    
+    models::session::delete_by_user_id(&mut conn, user.id)
+        .map_err(|err| {
+            log::error!("{:?}", err);
+            warp::reject()
+        })?;
+
     let session = models::session::NewSession::new(user.id)
         .insert(&mut conn)
         .map_err(|_| warp::reject::custom(DuplicateResource))?;
