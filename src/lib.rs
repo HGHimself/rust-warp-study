@@ -15,55 +15,28 @@ pub mod views;
 extern crate diesel;
 extern crate opengraph;
 
-use log::error;
 use server::Context;
 use std::convert::Infallible;
 use std::error::Error;
-use std::sync::Arc;
-use warp::{
-    http::{HeaderValue, StatusCode},
-    reject, Filter, Rejection, Reply,
-};
+use warp::{http::StatusCode, reject, Rejection, Reply};
 
-pub async fn is_static(subdomain: Arc<Vec<String>>) -> Result<(), warp::Rejection> {
-    log::info!("{:?}", subdomain);
-    if subdomain.len() > 0 && subdomain[0] == "www" {
-        Ok(())
-    } else {
-        Err(warp::reject())
-    }
-}
+pub const MAX_PAGE_COUNT: usize = 10;
+pub const MAX_LINK_COUNT: usize = 20;
 
-pub fn with_subdomain() -> warp::filters::BoxedFilter<(Arc<Vec<String>>,)> {
-    warp::header::value("host")
-        .map(move |value: HeaderValue| {
-            // convert HeaderValue to String and split port if provided
-            let splv: Vec<&str> = value.to_str().unwrap().split(":").collect();
-
-            // split hostname
-            let splv_2: Vec<String> = splv
-                .first()
-                .unwrap()
-                .split(".")
-                .map(|s: &str| String::from(s))
-                .collect();
-
-            Arc::<Vec<String>>::new(splv_2).clone()
-        })
-        .boxed()
+#[derive(Debug)]
+pub enum ResourceError {
+    TooMany(ResourceErrorData),
+    Duplicate(ResourceErrorData)
 }
 
 #[derive(Debug)]
-struct DuplicateResource;
-impl reject::Reject for DuplicateResource {}
-
-#[derive(Debug)]
-struct DuplicateResourceWithData {
+pub struct ResourceErrorData {
     context: Option<Context>,
     expanded_user: Option<models::user::ExpandedUser>,
     expanded_page: Option<models::page::ExpandedPage>,
 }
-impl reject::Reject for DuplicateResourceWithData {}
+
+impl reject::Reject for ResourceError {}
 
 #[derive(Debug)]
 struct NotFound;
@@ -86,7 +59,7 @@ pub async fn handle_final_rejection(err: Rejection) -> Result<impl Reply, Infall
         message = "METHOD_NOT_ALLOWED";
     } else {
         // We should have expected this... Just log and say its a 500
-        error!("unhandled rejection: {:?}", err);
+        log::error!("unhandled rejection: {:?}", err);
         code = StatusCode::INTERNAL_SERVER_ERROR;
         message = "UNHANDLED_REJECTION";
     }
@@ -98,9 +71,12 @@ pub async fn handle_final_rejection(err: Rejection) -> Result<impl Reply, Infall
 }
 
 pub async fn handle_rejection(err: Rejection) -> Result<Box<dyn warp::Reply>, Rejection> {
-    if let Some(_) = err.find::<DuplicateResource>() {
+    if let Some(ResourceError::Duplicate(_)) = err.find::<ResourceError>() {
         let code = StatusCode::BAD_REQUEST;
         error_reply(code, views::error::error(code, "Duplicate resource"))
+    } else if let Some(ResourceError::TooMany(_)) = err.find::<ResourceError>() {
+        let code = StatusCode::BAD_REQUEST;
+        error_reply(code, views::error::error(code, "Too many resources"))
     } else if let Some(_) = err.find::<NotAuthorized>() {
         let code = StatusCode::FORBIDDEN;
         error_reply(
@@ -140,20 +116,13 @@ pub async fn handle_rejection(err: Rejection) -> Result<Box<dyn warp::Reply>, Re
         Err(err)
     } else {
         // We should have expected this... Just log and say its a 500
-        error!("unhandled rejection: {:?}", err);
+        log::error!("unhandled rejection: {:?}", err);
         error_reply(
             StatusCode::INTERNAL_SERVER_ERROR,
             String::from("UNHANDLED_REJECTION"),
         )
     }
 }
-
-// pub fn error_reply_body(code: StatusCode, message: String) -> Result<impl Reply, Rejection> {
-//     log::error!("{}, {}", code, message);
-
-//     let html = warp::reply::html(views::error::error(code, &message));
-//     Ok(warp::reply::with_status(html, code))
-// }
 
 pub fn error_reply(code: StatusCode, message: String) -> Result<Box<dyn Reply>, Rejection> {
     log::error!("{}", code);

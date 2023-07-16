@@ -2,7 +2,7 @@ use crate::{
     models::{self, user::ExpandedUser},
     server::Context,
     utils::now,
-    DuplicateResource, NotAuthorized, NotFound, OldCookie,
+    NotAuthorized, NotFound, OldCookie, ResourceError, ResourceErrorData,
 };
 use diesel::result::{DatabaseErrorKind, Error::DatabaseError};
 use warp::{
@@ -83,12 +83,16 @@ async fn insert_new_user(
             log::error!("{:?}", e);
             match e {
                 DatabaseError(DatabaseErrorKind::UniqueViolation, _) => {
-                    reject::custom(DuplicateResource)
+                    reject::custom(ResourceError::Duplicate(ResourceErrorData {
+                        context: Some(context.clone()),
+                        expanded_user: None,
+                        expanded_page: None,
+                    }))
                 }
                 err => {
                     log::error!("{:?}", err);
                     warp::reject()
-                },
+                }
             }
         })?;
     log::info!("Saved User");
@@ -115,16 +119,21 @@ async fn with_new_session(
     background: models::background::Background,
 ) -> Result<(Context, models::user::ExpandedUser), warp::Rejection> {
     let mut conn = context.db_conn.get_conn();
-    
-    models::session::delete_by_user_id(&mut conn, user.id)
-        .map_err(|err| {
-            log::error!("{:?}", err);
-            warp::reject()
-        })?;
+
+    models::session::delete_by_user_id(&mut conn, user.id).map_err(|err| {
+        log::error!("{:?}", err);
+        warp::reject()
+    })?;
 
     let session = models::session::NewSession::new(user.id)
         .insert(&mut conn)
-        .map_err(|_| warp::reject::custom(DuplicateResource))?;
+        .map_err(|_| {
+            warp::reject::custom(ResourceError::Duplicate(ResourceErrorData {
+                context: Some(context.clone()),
+                expanded_user: None,
+                expanded_page: None,
+            }))
+        })?;
 
     let expanded_user = ExpandedUser {
         user,

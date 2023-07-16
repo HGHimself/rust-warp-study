@@ -1,4 +1,7 @@
-use crate::{models, routes, server::Context, DuplicateResourceWithData, NotFound};
+use crate::{
+    models, routes, server::Context, NotFound, ResourceError, ResourceErrorData, MAX_LINK_COUNT,
+    MAX_PAGE_COUNT,
+};
 use diesel::result::{DatabaseErrorKind, Error::DatabaseError};
 use warp::{filters::BoxedFilter, reject, Filter};
 
@@ -143,6 +146,23 @@ async fn insert_new_page(
 > {
     log::info!("Saving Page");
     let mut conn = context.db_conn.get_conn();
+
+    let count = models::page::get_count_of_pages_per_user(&mut conn, expanded_user.user.id)
+        .map_err(|e| {
+            log::error!("{:?}", e);
+            warp::reject()
+        })?;
+
+    if count > MAX_PAGE_COUNT {
+        return Err(warp::reject::custom(ResourceError::TooMany(
+            ResourceErrorData {
+                context: Some(context),
+                expanded_user: Some(expanded_user),
+                expanded_page: None,
+            },
+        )));
+    }
+
     let background = models::background::random_bg()
         .insert(&mut conn)
         .map_err(|e| {
@@ -156,16 +176,16 @@ async fn insert_new_page(
             log::error!("{:?}", e);
             match e {
                 DatabaseError(DatabaseErrorKind::UniqueViolation, _) => {
-                    reject::custom(DuplicateResourceWithData {
+                    warp::reject::custom(ResourceError::Duplicate(ResourceErrorData {
                         context: Some(context.clone()),
                         expanded_user: Some(expanded_user.clone()),
                         expanded_page: None,
-                    })
+                    }))
                 }
                 err => {
                     log::error!("{:?}", err);
                     warp::reject()
-                },
+                }
             }
         })?;
     log::info!("Saved Page");
@@ -204,6 +224,22 @@ async fn insert_new_link(
 > {
     log::info!("Saving Link");
     let mut conn = context.db_conn.get_conn();
+    let count = models::page_link::get_count_of_links_per_page(&mut conn, expanded_page.page.id)
+        .map_err(|err| {
+            log::error!("{:?}", err);
+            warp::reject()
+        })?;
+
+    if count > MAX_LINK_COUNT {
+        return Err(warp::reject::custom(ResourceError::TooMany(
+            ResourceErrorData {
+                context: Some(context),
+                expanded_user: Some(expanded_user),
+                expanded_page: Some(expanded_page),
+            },
+        )));
+    }
+
     let name = new_link.name.clone();
 
     let link = match models::link::read_by_url(&mut conn, new_link.url.clone()) {
@@ -214,23 +250,26 @@ async fn insert_new_link(
                 warp::reject()
             }),
         Ok(link) => Ok(link),
-        err => {log::error!("{:?}", err); Err(warp::reject())},
+        err => {
+            log::error!("{:?}", err);
+            Err(warp::reject())
+        }
     }?;
 
     models::page_link::NewPageLink::new(expanded_page.page.id, link.id, name)
         .insert(&mut conn)
         .map_err(|e| match e {
             DatabaseError(DatabaseErrorKind::UniqueViolation, _) => {
-                reject::custom(DuplicateResourceWithData {
+                reject::custom(ResourceError::Duplicate(ResourceErrorData {
                     context: Some(context.clone()),
                     expanded_user: None,
                     expanded_page: Some(expanded_page.clone()),
-                })
+                }))
             }
             err => {
                 log::error!("{:?}", err);
                 warp::reject()
-            },
+            }
         })?;
 
     log::info!("Saved Link");

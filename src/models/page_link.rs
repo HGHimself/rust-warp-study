@@ -75,3 +75,14 @@ pub fn remove_link_by_page_id_and_link_id(
         .filter(page_link::link_id.eq(link_id))
         .execute(conn)
 }
+
+pub fn get_count_of_links_per_page(
+    conn: &mut PgConnection,
+    page_id: i32,
+) -> Result<usize, diesel::result::Error> {
+    page_link::table
+        .filter(page_link::page_id.eq(page_id))
+        .filter(page_link::deleted_at.is_null())
+        .count()
+        .execute(conn)
+}

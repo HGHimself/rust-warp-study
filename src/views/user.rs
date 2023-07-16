@@ -4,9 +4,10 @@ use std::include_str;
 pub fn profile(
     user: models::user::User,
     background: models::background::Background,
-    pages_html: String,
+    pages: Vec<models::page::Page>,
     message: &str,
 ) -> String {
+    let pages_html = pages_authenticated(pages);
     views::body::document_authenticated(
         String::from("Profile"),
         &user,
@@ -33,4 +34,17 @@ pub fn signup_form(message: &str) -> String {
             .replace("{error}", message)
             .replace("{background}", &models::background::signup()),
     )
+}
+
+pub fn pages_authenticated(pages: Vec<models::page::Page>) -> String {
+    if pages.len() != 0 {
+        pages
+            .iter()
+            .map(|page| views::page::list_item_authenticated(page))
+            .collect::<String>()
+    } else {
+        String::from(
+            "<div class='neubrutalist-card'><h5 class='empty-error'>You have no pages yet! Add one using the form above.</h5></div>",
+        )
+    }
 }

@@ -166,3 +166,14 @@ pub fn read_pages_by_link(
         .filter(page::deleted_at.is_null())
         .load(conn)
 }
+
+pub fn get_count_of_pages_per_user(
+    conn: &mut PgConnection,
+    user_id: i32,
+) -> Result<usize, diesel::result::Error> {
+    page::table
+        .filter(page::user_id.eq(user_id))
+        .filter(page::deleted_at.is_null())
+        .count()
+        .execute(conn)
+}

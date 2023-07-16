@@ -1,4 +1,4 @@
-use crate::{error_reply, models, server::Context, views, DuplicateResource, NotFound};
+use crate::{error_reply, models, server::Context, views, ResourceError, NotFound};
 use hyper::StatusCode;
 use std::convert::Infallible;
 use warp::{reject, Rejection, Reply};
@@ -7,27 +7,10 @@ pub async fn profile(
     context: Context,
     expanded_user: models::user::ExpandedUser,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let mut conn = context.db_conn.get_conn();
-
-    let pages =
-        models::page::read_pages_by_user_id(&mut conn, expanded_user.user.id).map_err(|e| {
-            log::error!("{:?}", e);
-            warp::reject::not_found()
-        })?;
-
-    let pages_html = if pages.len() != 0 {
-        pages
-            .iter()
-            .map(|page| views::page::list_item_authenticated(page))
-            .collect::<String>()
-    } else {
-        String::from(
-            "<div class='neubrutalist-card'><h5 class='empty-error'>You have no pages yet! Add one using the form above.</h5></div>",
-        )
-    };
+    let pages = get_pages(context, &expanded_user)?;
 
     let profile_html =
-        views::user::profile(expanded_user.user, expanded_user.background, pages_html, "");
+        views::user::profile(expanded_user.user, expanded_user.background, pages, "");
 
     Ok(warp::reply::html(profile_html))
 }
@@ -36,18 +19,9 @@ pub async fn profile_with_cookie(
     context: Context,
     expanded_user: models::user::ExpandedUser,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let mut conn = context.db_conn.get_conn();
-
-    let pages =
-        models::page::read_pages_by_user_id(&mut conn, expanded_user.user.id).map_err(|e| {
-            log::error!("{:?}", e);
-            warp::reject::not_found()
-        })?;
-
-    let pages_html = pages_authenticated(pages);
-
+    let pages = get_pages(context, &expanded_user)?;
     let profile_html =
-        views::user::profile(expanded_user.user, expanded_user.background, pages_html, "");
+        views::user::profile(expanded_user.user, expanded_user.background, pages, "");
 
     Ok(warp::reply::with_header(
         warp::reply::html(profile_html),
@@ -56,17 +30,13 @@ pub async fn profile_with_cookie(
     ))
 }
 
-pub fn pages_authenticated(pages: Vec<models::page::Page>) -> String {
-    if pages.len() != 0 {
-        pages
-            .iter()
-            .map(|page| views::page::list_item_authenticated(page))
-            .collect::<String>()
-    } else {
-        String::from(
-            "<div class='neubrutalist-card'><h5 class='empty-error'>You have no pages yet! Add one using the form above.</h5></div>",
-        )
-    }
+pub fn get_pages(context: Context, expanded_user: &models::user::ExpandedUser) -> Result<Vec<models::page::Page>, warp::Rejection> {
+    let mut conn = context.db_conn.get_conn();
+
+    models::page::read_pages_by_user_id(&mut conn, expanded_user.user.id).map_err(|e| {
+            log::error!("{:?}", e);
+            warp::reject::not_found()
+        })
 }
 
 pub async fn logout() -> Result<impl warp::Reply, Infallible> {
@@ -104,7 +74,7 @@ pub async fn handle_logout_errors(err: Rejection) -> Result<impl Reply, Rejectio
 }
 
 pub async fn handle_signup_errors(err: Rejection) -> Result<impl Reply, Rejection> {
-    if let Some(_) = err.find::<DuplicateResource>() {
+    if let Some(ResourceError::Duplicate(_)) = err.find::<ResourceError>() {
         let html = views::user::signup_form("Error: Username already in use");
         error_reply(StatusCode::BAD_REQUEST, html)
     } else {

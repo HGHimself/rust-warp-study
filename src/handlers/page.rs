@@ -1,4 +1,6 @@
-use crate::{error_reply, handlers, models, server::Context, views, DuplicateResourceWithData};
+use crate::{
+    error_reply, handlers, models, server::Context, views, ResourceError, ResourceErrorData
+};
 use hyper::StatusCode;
 
 pub async fn view(
@@ -6,17 +8,10 @@ pub async fn view(
     expanded_user: models::user::ExpandedUser,
     expanded_page: models::page::ExpandedPage,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let mut conn = context.db_conn.get_conn();
-
-    let links = models::link::read_links_by_page(&mut conn, &expanded_page.page).map_err(|e| {
-        log::error!("{:?}", e);
-        warp::reject::not_found()
-    })?;
-
-    let links_html = links_to_list(links, &expanded_page);
+    let links = get_links(context, &expanded_page)?;
 
     let page_html =
-        views::page::view(expanded_user.user, expanded_page, "").replace("{links}", &links_html);
+        views::page::view(expanded_user, expanded_page, links, "");
 
     Ok(warp::reply::html(page_html))
 }
@@ -26,81 +21,20 @@ pub async fn view_authenticated(
     expanded_user: models::user::ExpandedUser,
     expanded_page: models::page::ExpandedPage,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let mut conn = context.db_conn.get_conn();
+    let links = get_links(context, &expanded_page)?;
 
-    let links = models::link::read_links_by_page(&mut conn, &expanded_page.page).map_err(|e| {
-        log::error!("{:?}", e);
-        warp::reject::not_found()
-    })?;
-
-    let links_html = links_to_list_authenticated(links, &expanded_page);
-
-    let page_html = views::page::view_authenticated(expanded_user.user, expanded_page, "")
-        .replace("{links}", &links_html);
+    let page_html = views::page::view_authenticated(expanded_user, expanded_page, links, "");
 
     Ok(warp::reply::html(page_html))
-}
-
-fn links_to_list(
-    links: Vec<(models::link::Link, models::page_link::PageLink)>,
-    expanded_page: &models::page::ExpandedPage,
-) -> String {
-    if links.len() != 0 {
-        links
-            .iter()
-            .enumerate()
-            .map(|(i, (link, page_link))| {
-                expanded_page
-                    .page
-                    .inject_values(&views::link::link(i, link, page_link))
-            })
-            .collect::<String>()
-    } else {
-        String::from("<div class='neubrutalist-card'><h5 class='empty-error'>This page does not have any links, yet.</h5></div>")
-    }
-}
-
-fn links_to_list_authenticated(
-    links: Vec<(models::link::Link, models::page_link::PageLink)>,
-    expanded_page: &models::page::ExpandedPage,
-) -> String {
-    if links.len() != 0 {
-        links
-            .iter()
-            .enumerate()
-            .map(|(i, (link, page_link))| {
-                expanded_page
-                    .page
-                    .inject_values(&views::link::link_authenticated(i, link, page_link))
-            })
-            .collect::<String>()
-    } else {
-        String::from(
-            "<div class='neubrutalist-card'><h5 class='empty-error'>You have no links yet! Add one using the form above.</h5></div>",
-        )
-    }
 }
 
 pub async fn handle_create_link_error(
     err: warp::Rejection,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    if let Some(resource) = err.find::<DuplicateResourceWithData>() {
-        if let Some(expanded_user) = resource.expanded_user.clone() && let Some(expanded_page) = resource.expanded_page.clone() && let Some(context) = resource.context.clone() {
-            let mut conn = context.db_conn.get_conn();
-
-    let links = models::link::read_links_by_page(&mut conn, &expanded_page.page)
-        .map_err(|e| {
-            log::error!("{:?}", e);
-            warp::reject::not_found()
-        })?;
-
-    let links_html = links_to_list_authenticated(links, &expanded_page);
-
-    let html = views::page::view_authenticated(expanded_user.user, expanded_page, "Error: Link already exists in this page").replace("{links}", &links_html);
-            error_reply(StatusCode::CONFLICT, html)
-        } else {
-            error_reply(StatusCode::INTERNAL_SERVER_ERROR, views::error::error(StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR"))
-        }
+    if let Some(ResourceError::Duplicate(resource)) = err.find::<ResourceError>() {
+        process_page_error(resource, "Error: Link already exists in this page")
+    } else if let Some(ResourceError::TooMany(resource)) = err.find::<ResourceError>() {
+        process_page_error(resource, "Error: You cannot add any more links")
     } else {
         Err(err)
     }
@@ -109,22 +43,46 @@ pub async fn handle_create_link_error(
 pub async fn handle_create_page_error(
     err: warp::Rejection,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    if let Some(resource) = err.find::<DuplicateResourceWithData>() {
-        if let Some(expanded_user) = resource.expanded_user.clone() && let Some(context) = resource.context.clone() {
-            let mut conn = context.db_conn.get_conn();
+    if let Some(ResourceError::Duplicate(resource)) = err.find::<ResourceError>() {
+        process_profile_error(resource, "Error: Page with this name already exists")
+    } else if let Some(ResourceError::TooMany(resource)) = err.find::<ResourceError>() {
+        process_profile_error(resource, "Error: You cannot add any more pages")
+    } else {
+        Err(err)
+    }
+}
 
-            let pages =
-            models::page::read_pages_by_user_id(&mut conn, expanded_user.user.id).map_err(|e| {
-                log::error!("{:?}", e);
-                warp::reject::not_found()
-            })?;
+pub fn process_page_error(resource: &ResourceErrorData, message: &str) -> Result<impl warp::Reply, warp::Rejection> {
+    if let Some(expanded_user) = resource.expanded_user.clone() 
+    && let Some(expanded_page) = resource.expanded_page.clone() 
+    && let Some(context) = resource.context.clone() {
+        
+        let links = get_links(context, &expanded_page)?;
 
-            let pages_html = handlers::user::pages_authenticated(pages);
+        let html = views::page::view_authenticated(
+            expanded_user, 
+            expanded_page, 
+            links, 
+            "Error: Link already exists in this page"
+        );
 
+        error_reply(StatusCode::CONFLICT, html)
+    } else {
+        error_reply(StatusCode::INTERNAL_SERVER_ERROR, views::error::error(StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR"))
+    }
+}
+
+pub fn process_profile_error(
+    resource: &ResourceErrorData,
+    message: &str
+) -> Result<impl warp::Reply, warp::Rejection> {
+        if let Some(expanded_user) = resource.expanded_user.clone() 
+        && let Some(context) = resource.context.clone() {
+            let pages = handlers::user::get_pages(context, &expanded_user)?;
             let html = views::user::profile(
                 expanded_user.user,
                 expanded_user.background,
-                pages_html,
+                pages,
                 "Error: Page already exists with this name",
             );
             error_reply(StatusCode::CONFLICT, html)
@@ -134,7 +92,15 @@ pub async fn handle_create_page_error(
                 views::error::error(StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR"),
             )
         }
-    } else {
-        Err(err)
-    }
+    
+}
+
+fn get_links(context: Context, expanded_page: &models::page::ExpandedPage) -> Result<Vec<(models::link::Link, models::page_link::PageLink)>, warp::Rejection> {
+    let mut conn = context.db_conn.get_conn();
+
+    models::link::read_links_by_page(&mut conn, &expanded_page.page)
+        .map_err(|e| {
+            log::error!("{:?}", e);
+            warp::reject::not_found()
+        })
 }
