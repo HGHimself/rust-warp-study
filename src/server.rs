@@ -5,7 +5,7 @@ use crate::{
     handle_final_rejection, handle_rejection, handlers, routes,
     utils::{load_certs, load_private_key},
 };
-use hyper_rustls::{TlsAcceptor};
+use hyper_rustls::TlsAcceptor;
 
 use tower_http::{
     add_extension::AddExtensionLayer,
@@ -109,7 +109,6 @@ pub async fn serve(addr: SocketAddr, config: Arc<Config>) -> Result<(), warp::hy
     // otherwise serve normally
     let listener = std::net::TcpListener::bind(addr).unwrap();
     Server::from_tcp(listener).unwrap().serve(app).await?;
-    
 
     Ok(())
 }

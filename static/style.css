@@ -123,6 +123,10 @@ p {
   max-width: 500px;
 }
 
+ul {
+  padding: 0;
+}
+
 .home-actions ul {
   display: flex;
   flex-direction: column;
@@ -151,42 +155,6 @@ p {
   grid-row: 1;
   grid-column: 1;
   display: block;
-  margin-bottom: 5rem;
-  margin-top: 5rem;
-}
-
-.home-actions {
-  grid-row: 1;
-  grid-column: 2;
-}
-
-.home-one {
-  grid-row: 2;
-  grid-column: 1;
-}
-.home-one-two {
-  grid-row: 2;
-  grid-column: 2;
-}
-
-.home-two {
-  grid-row: 3;
-  grid-column: 2;
-}
-
-.home-three {
-  grid-row: 4;
-  grid-column: 1;
-}
-
-.home-four {
-  grid-row: 5;
-  grid-column: 2;
-}
-
-.home-five {
-  grid-row: 6;
-  grid-column: 1;
 }
 
 .card {
@@ -408,9 +376,9 @@ ul.actions li {
   padding: 2rem;
 }
 
-.dark-card a:hover {
-  color: #FCCC0A;
-  /* color: #00933C; */
+.text-card {
+  height: min-content;
+  max-width: 700px;
 }
 
 .page-link {
@@ -427,7 +395,7 @@ ul.actions li {
 }
 
 .page-link div {
-  max-width: 500px;
+  max-width: 400px;
   margin-left: 2rem;
 }
 
@@ -445,15 +413,18 @@ ul.actions li {
 .page-authenticated {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-gap: 3rem;
+  margin-bottom: 3rem;
+  grid-gap: 4rem;
 }
 
 .new-link, .create-page {
-  margin: auto;
+  /* margin: auto; */
+  width: fit-content;
+  height: fit-content;
 }
 
 .page-title {
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 li.link-wrapper {
@@ -469,12 +440,6 @@ li .link {
   border-radius: 100px;
 }
 
-/* li .link:hover {
-  border: 5px solid #ffb300;
-  box-shadow: 0px 0px 5px 2.5px #00ffd5, inset 0px 0px 1px #00ffd5;
-  margin: 0px;
-} */
-
 li .link a.bookmark {
   display: flex;
   flex-direction: column;
@@ -482,20 +447,12 @@ li .link a.bookmark {
   font-size: 1.2rem;
 }
 
-li .link .link-action {
-  display: flex;
-  justify-content: space-between;
-}
-
-ul.links {
+ul.links, ul.authenticated  {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   row-gap: 3.5rem;
-}
-
-ul.authenticated {
-  grid-template-columns: repeat(2, 1fr);
-  grid-column: 1 / 3;
+  margin-left: 3rem;
+  max-width: 900px;
 }
 
 .single-form {
@@ -511,6 +468,7 @@ ul.page-list {
   row-gap: 5rem;
   align-items: start;
   max-width: 900px;
+  margin-left: 3rem;
 }
 
 /* ul.page-list li.page-list-item {

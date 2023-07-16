@@ -1,10 +1,7 @@
 use rust_warp_study::{config::Config, server::serve};
 use tracing_subscriber::fmt::format::FmtSpan;
 
-use std::{
-    net::{SocketAddr},
-    sync::Arc,
-};
+use std::{net::SocketAddr, sync::Arc};
 
 #[tokio::main]
 async fn main() {

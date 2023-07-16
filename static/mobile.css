@@ -2,18 +2,49 @@ main.content {
     padding-left: 1rem;
 }
 
+.title {
+    font-size: 32px;
+}
+
+.welcome {
+    font-size: 1.5rem;
+}
+
+
+.byline {
+    font-size: 1rem;
+    max-width: 600px;
+}
+
 ul.page-list {
     grid-template-columns: repeat(1, 1fr);
+    justify-items: center;
+    margin-left: 0;
 }
 
 .home {
-    display: block;
+    grid-template-columns: repeat(1, 1fr);
 }
 
 .page-authenticated {
-    display: block;
+    grid-template-columns: repeat(1, 1fr);
+    grid-gap: 0;
+    justify-items: center;
 }
 
-ul.links, ul.links.authenticated {
+ul.links,
+ul.links.authenticated {
     grid-template-columns: repeat(1, 1fr);
+    justify-items: center;
+    margin-left: 0;
+}
+
+.page-link .link-banner {
+    width: 70%;
+    margin-bottom: 1rem;
+    margin-left: 0;
+}
+
+.page-link div {
+    margin-left: 0;
 }
