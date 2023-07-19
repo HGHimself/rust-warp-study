@@ -44,7 +44,7 @@ pub fn pages_authenticated(pages: Vec<models::page::Page>) -> String {
             .collect::<String>()
     } else {
         String::from(
-            "<div class='neubrutalist-card'><h5 class='empty-error'>You have no pages yet! Add one using the form above.</h5></div>",
+            "<div class='neubrutalist-card'><h5 class='empty-error'>You have no groups yet! Add one using the form above.</h5></div>",
         )
     }
 }

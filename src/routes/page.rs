@@ -153,7 +153,7 @@ async fn insert_new_page(
             warp::reject()
         })?;
 
-    if count > MAX_PAGE_COUNT {
+    if count >= MAX_PAGE_COUNT {
         return Err(warp::reject::custom(ResourceError::TooMany(
             ResourceErrorData {
                 context: Some(context),
@@ -230,7 +230,8 @@ async fn insert_new_link(
             warp::reject()
         })?;
 
-    if count > MAX_LINK_COUNT {
+    log::error!("{} {}", count, MAX_LINK_COUNT);
+    if count >= MAX_LINK_COUNT {
         return Err(warp::reject::custom(ResourceError::TooMany(
             ResourceErrorData {
                 context: Some(context),

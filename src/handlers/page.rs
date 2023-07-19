@@ -31,7 +31,7 @@ pub async fn handle_create_link_error(
     err: warp::Rejection,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     if let Some(ResourceError::Duplicate(resource)) = err.find::<ResourceError>() {
-        process_page_error(resource, "Error: Link already exists in this page")
+        process_page_error(resource, "Error: Link already exists in this group")
     } else if let Some(ResourceError::TooMany(resource)) = err.find::<ResourceError>() {
         process_page_error(resource, "Error: You cannot add any more links")
     } else {
@@ -43,9 +43,9 @@ pub async fn handle_create_page_error(
     err: warp::Rejection,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     if let Some(ResourceError::Duplicate(resource)) = err.find::<ResourceError>() {
-        process_profile_error(resource, "Error: Page with this name already exists")
+        process_profile_error(resource, "Error: Group with this name already exists")
     } else if let Some(ResourceError::TooMany(resource)) = err.find::<ResourceError>() {
-        process_profile_error(resource, "Error: You cannot add any more pages")
+        process_profile_error(resource, "Error: You cannot add any more groups")
     } else {
         Err(err)
     }
