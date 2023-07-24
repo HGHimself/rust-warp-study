@@ -37,6 +37,13 @@ pub fn head(title: String) -> String {
 <link rel='mask-icon' href='/safari-pinned-tab.svg' color='#5bbad5'>
 <meta name='msapplication-TileColor' content='#da532c'>
 <meta name='theme-color' content='#ffffff'>
+<meta property='og:title' content='Digitheque' />
+<meta property='og:type' content='website' />
+<meta property='og:url' content='https://digitheque.io' />
+<meta property='og:image' content='/rainbow-logo-2.png' />
+<meta property='og:description' 
+  content='A social network allowing for people to explore the internet through
+          a user-provided graph of websites.' />
 <link rel='stylesheet' href='/style.css' />
 <link rel='stylesheet' href='/mobile.css' media='screen and (max-width: 600px)' />
 <script src='https://unpkg.com/htmx.org@1.9.2' integrity='sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h' crossorigin='anonymous'></script>
