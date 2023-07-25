@@ -1,26 +1,27 @@
 @font-face {
-  font-family: "EditorialNew";
-  src: url("./PPEditorialNew.ttf");
+  font-family: "AkzidenzGrotesk";
+  src: url("/fonts/ag-reg.woff2");
   font-display: swap;
 }
 
 @font-face {
-  font-family: "EditorialNew";
-  src: url("./PPEditorialNew-Italic.ttf");
+  font-family: "AkzidenzGrotesk";
+  src: url("/fonts/AkzidenzGrotesk-Italic.woff2");
   font-style: italic;
   font-display: swap;
 }
 
 @font-face {
   font-family: "AkzidenzGrotesk";
-  src: url("./AkzidenzGrotesk.woff2");
+  src: url("/fonts/ag-bold.woff2");
+  font-weight: 700;
   font-display: swap;
 }
 
 @font-face {
   font-family: "AkzidenzGrotesk";
-  src: url("./AkzidenzGrotesk-Italic.woff2");
-  font-style: italic;
+  src: url("/fonts/ag-md.woff2");
+  font-weight: 500;
   font-display: swap;
 }
 
