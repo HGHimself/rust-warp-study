@@ -162,7 +162,7 @@ pub fn background_random() -> String {
         random(15, 1) as i32,
         random(15, 1) as i32,
         random(2000, 3) as i32,
-        random(75, 50) as i32,
+        random(75, 20) as i32,
     )
     .to_call()
 }
@@ -172,13 +172,13 @@ pub fn background_random() -> String {
 // }
 
 pub fn index() -> String {
-    Background::from_params(128, 7, 1703, 813, 11, 15, 704, 62).to_call()
+    Background::from_params(128, 7, 1703, 813, 11, 15, random(2000, 3) as i32, 62).to_call()
 }
 
 pub fn login() -> String {
-    Background::from_params(91, 3, 1346, 903, 7, 14, 1985, 53).to_call()
+    Background::from_params(91, 3, 1346, 903, 7, 14, random(2000, 3) as i32, 53).to_call()
 }
 
 pub fn signup() -> String {
-    Background::from_params(79, 7, 2066, 1165, 2, 13, 415, 101).to_call()
+    Background::from_params(79, 7, 2066, 1165, 2, 13, random(2000, 3) as i32, 101).to_call()
 }

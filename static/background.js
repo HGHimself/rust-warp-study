@@ -31,9 +31,30 @@ const getRgbSpectrumArray = (i) => {
     return [r, g, b];
 };
 
-const getSpectrumPosition = (i, a) => {
+const RGBToHSL = (r, g, b) => {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    const l = Math.max(r, g, b);
+    const s = l - Math.min(r, g, b);
+    const h = s
+        ? l === r
+            ? (g - b) / s
+            : l === g
+                ? 2 + (b - r) / s
+                : 4 + (r - g) / s
+        : 0;
+    return [
+        (60 * h < 0 ? 60 * h + 360 : 60 * h),
+        (100 * (s ? (l <= 0.5 ? s / (2 * l - s) : s / (2 - (2 * l - s))) : 0)),
+        ((100 * (2 * l - s)) / 2),
+    ];
+};
+
+const getSpectrumPosition = (i) => {
     const [r, g, b] = getRgbSpectrumArray(i);
-    return a ? `rgba(${r}, ${g}, ${b}, ${a})` : `rgb(${r}, ${g}, ${b})`;
+    const [h, s, l] = RGBToHSL(r,g,b);
+    return `hsl(${h}, ${s > 80 ? s - 10 : s}%, ${l}%)`;
 };
 
 class Background {
@@ -269,20 +290,20 @@ const showBackground = ({
         background: "rgb(255, 153, 233)",
         gradient: "radial-gradient(at 32% 33%, rgb(252, 146, 194) 0px, transparent 50%), radial-gradient(at 72% 16%, rgb(249, 93, 106) 0px, transparent 50%), radial-gradient(at 26% 44%, rgb(95, 141, 227) 0px, transparent 50%), radial-gradient(at 74% 60%, rgb(56, 101, 250) 0px, transparent 50%), radial-gradient(at 18% 76%, rgb(239, 216, 123) 0px, transparent 50%), radial-gradient(at 89% 65%, rgb(234, 164, 72) 0px, transparent 50%), radial-gradient(at 65% 72%, rgb(165, 226, 116) 0px, transparent 50%)"
     }
-    
+
     var background = new Background(props)
-    
-    
+
+
     window.addEventListener("resize", () => {
         background.resize(window.innerWidth, window.innerHeight)
     });
-    
+
     let lastKnownScrollPosition = 0;
     let ticking = false;
     const content = document.getElementById("content")
     content.addEventListener("scroll", (event) => {
         lastKnownScrollPosition = content.scrollTop;
-    
+
         if (!ticking) {
             window.requestAnimationFrame(() => {
                 background.setOptions({
@@ -291,7 +312,7 @@ const showBackground = ({
                 });
                 ticking = false;
             });
-    
+
             ticking = true;
         }
     });

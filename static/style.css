@@ -6,13 +6,6 @@
 
 @font-face {
   font-family: "AkzidenzGrotesk";
-  src: url("/fonts/AkzidenzGrotesk-Italic.woff2");
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "AkzidenzGrotesk";
   src: url("/fonts/ag-bold.woff2");
   font-weight: 700;
   font-display: swap;
@@ -41,12 +34,14 @@ body {
 }
 
 .error {
-  color: #EE352E;
+  font-weight: bold;
 }
 
 .title {
-  font-size: 48px;
+  font-size: 2.5rem;
   margin: 0;
+  font-weight: 500;
+  letter-spacing: -1px;
 }
 
 .title a {
@@ -54,13 +49,17 @@ body {
 }
 
 header {
-  height: 10vh;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding-left: 1rem;
   padding-right: 1rem;
   background-color: white;
+}
+
+header div {
+  height: 10vh;
+  max-width: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 footer {
@@ -71,22 +70,30 @@ footer {
   background-color: white;
 }
 
-.welcome {
-  font-size: 2rem;
-  padding-left: 0rem;
-  line-height: 1.5;
+.home-title {
+  /* width: 600px; */
 }
 
-.welcome i {
-  font-size: 2.5rem;
+.home-title ul {
+  display: flex;
+  justify-content: space-around;
+}
+
+.welcome {
+  font-size: 3rem;
+  padding-left: 0rem;
+  line-height: 1;
+  letter-spacing: -2px;
+  font-weight: 700;
 }
 
 .byline {
   padding-left: 0rem;
   font-size: 1.5rem;
-  max-width: 600px;
   line-height: 1.4;
-  font-weight: 100;
+  font-weight: normal;
+  letter-spacing: -1px;
+  font-style: italic;
 }
 
 h2,
@@ -107,6 +114,7 @@ h3 {
 
 h4 {
   font-size: 2rem;
+  font-weight: 500;
 }
 
 h5 {
@@ -185,7 +193,7 @@ fieldset {
   max-width: 350px;
   display: flex;
   flex-direction: column;
-  border: 1.5px dashed black;
+  border: 1.5px dashed currentColor;
   border-radius: 5px;
   padding: 1rem 2rem;
 }
@@ -207,9 +215,10 @@ fieldset legend {
 fieldset input {
   border: none;
   background-color: inherit;
-  border-bottom: 1.5px dashed black;
+  border-bottom: 1.5px dashed currentColor;
   padding: 0.2rem 0.5rem;
   font-size: 1rem;
+  color: inherit;
 }
 
 fieldset button {
@@ -232,10 +241,11 @@ fieldset button {
 button[type=submit] {
   text-transform: uppercase;
   font-weight: bold;
-  border: 1px solid black;
+  border: 1px solid currentColor;
   padding: 0.5rem;
   border-radius: 5px;
   cursor: pointer;
+  color: inherit;
 }
 
 fieldset a {
@@ -244,7 +254,7 @@ fieldset a {
 }
 
 a:visited {
-  color: black;
+  color: currentColor;
 }
 
 .normalized {
@@ -334,7 +344,7 @@ ul.actions li {
 }
 
 .purple-neubrutalist-card {
-  background-color: #b933ad;
+  background-color: rgb(185, 51, 173);
   border-radius: 5px;
   max-width: 900px;
   color: white;
