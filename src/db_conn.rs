@@ -1,4 +1,5 @@
 use diesel::pg::PgConnection;
+use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool, PooledConnection};
 use log::info;
 
@@ -19,4 +20,9 @@ impl DbConn {
     pub fn get_conn(&self) -> PooledConnection<ConnectionManager<PgConnection>> {
         self.pool.get().unwrap()
     }
+}
+
+pub fn establish_test_connection() -> PgConnection {
+    let database_url = crate::config::db_test_url();
+    PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url))
 }

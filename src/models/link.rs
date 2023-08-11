@@ -163,3 +163,11 @@ pub fn read_links_by_page(
         .filter(page_link::deleted_at.is_null())
         .load::<(Link, PageLink)>(conn)
 }
+
+pub fn get_count_of_links(conn: &mut PgConnection) -> Result<usize, diesel::result::Error> {
+    link::table
+        .count()
+        .filter(link::deleted_at.is_null())
+        .get_result(conn)
+        .map(|v: i64| v as usize)
+}

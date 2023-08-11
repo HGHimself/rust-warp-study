@@ -27,6 +27,17 @@ pub async fn view_authenticated(
     Ok(warp::reply::html(page_html))
 }
 
+pub async fn view_unauthenticated(
+    context: Context,
+    expanded_page: models::page::ExpandedPage,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let links = get_links(context, &expanded_page)?;
+
+    let page_html = views::page::view_unauthenticated(expanded_page, links, "");
+
+    Ok(warp::reply::html(page_html))
+}
+
 pub async fn handle_create_link_error(
     err: warp::Rejection,
 ) -> Result<impl warp::Reply, warp::Rejection> {

@@ -3,7 +3,10 @@ use crate::{
     MAX_PAGE_COUNT,
 };
 use diesel::result::{DatabaseErrorKind, Error::DatabaseError};
-use warp::{filters::BoxedFilter, reject, Filter};
+use warp::{
+    filters::{self, BoxedFilter},
+    reject, Filter,
+};
 
 pub fn get() -> BoxedFilter<(
     Context,
@@ -29,6 +32,16 @@ pub fn get_authenticated() -> BoxedFilter<(
         .and(warp::get())
         .and(routes::user::authenticate_cookie())
         .and_then(with_authenticated_page)
+        .untuple_one()
+        .boxed()
+}
+
+pub fn get_unauthenticated() -> BoxedFilter<(Context, models::page::ExpandedPage)> {
+    warp::path::param::<i32>()
+        .and(warp::path::end())
+        .and(warp::get())
+        .and(filters::ext::get::<Context>())
+        .and_then(with_page_unauthenticated)
         .untuple_one()
         .boxed()
 }
@@ -111,6 +124,16 @@ async fn with_page(
     log::info!("Looking for page with id of {}", id);
     let page = models::page::read_by_id(&mut conn, id).map_err(|_| reject::custom(NotFound))?;
     Ok((context, expanded_user, page))
+}
+
+async fn with_page_unauthenticated(
+    id: i32,
+    context: Context,
+) -> Result<(Context, models::page::ExpandedPage), warp::Rejection> {
+    let mut conn = context.db_conn.get_conn();
+    log::info!("Looking for page with id of {}", id);
+    let page = models::page::read_by_id(&mut conn, id).map_err(|_| reject::custom(NotFound))?;
+    Ok((context, page))
 }
 
 async fn with_authenticated_page(

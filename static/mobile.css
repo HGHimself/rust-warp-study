@@ -57,3 +57,8 @@ ul.links.authenticated {
 .page-link div {
     margin-left: 0;
 }
+
+.home .big-image-right {
+    grid-row: none;
+    grid-column: none;
+  }

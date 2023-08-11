@@ -5,6 +5,8 @@ macro_rules! page {
                 routes::page::get_authenticated()
                     .and_then(handlers::page::view_authenticated)
                     .or(routes::page::get().and_then(handlers::page::view))
+                    .or(routes::page::get_unauthenticated()
+                        .and_then(handlers::page::view_unauthenticated))
                     .or(routes::page::create_link()
                         .and_then(handlers::page::view_authenticated)
                         .recover(handlers::page::handle_create_link_error))

@@ -81,8 +81,9 @@ pub fn get_count_of_links_per_page(
     page_id: i32,
 ) -> Result<usize, diesel::result::Error> {
     page_link::table
+        .count()
         .filter(page_link::page_id.eq(page_id))
         .filter(page_link::deleted_at.is_null())
-        .count()
-        .execute(conn)
+        .get_result(conn)
+        .map(|v: i64| v as usize)
 }

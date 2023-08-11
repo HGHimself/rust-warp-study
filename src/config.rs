@@ -72,11 +72,11 @@ impl Config {
     }
 }
 
-#[cfg(feature = "mocks")]
-pub fn generate_mocking_config() -> Config {
-    Config::new(true)
-}
-
 pub fn generate_config() -> Config {
     Config::new(false)
+}
+
+pub fn db_test_url() -> String {
+    dotenv().ok();
+    env::var("DATABASE_URL_TEST").expect("DATABASE_URL must be set")
 }

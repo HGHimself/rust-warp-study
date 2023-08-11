@@ -175,5 +175,14 @@ pub fn get_count_of_pages_per_user(
         .filter(page::user_id.eq(user_id))
         .filter(page::deleted_at.is_null())
         .count()
-        .execute(conn)
+        .get_result(conn)
+        .map(|v: i64| v as usize)
+}
+
+pub fn get_count_of_pages(conn: &mut PgConnection) -> Result<usize, diesel::result::Error> {
+    page::table
+        .filter(page::deleted_at.is_null())
+        .count()
+        .get_result(conn)
+        .map(|v: i64| v as usize)
 }

@@ -185,3 +185,7 @@ pub fn read_user_by_session(
         background,
     })
 }
+
+pub fn cleanup_table(conn: &mut PgConnection) {
+    diesel::delete(user::table).execute(conn).unwrap();
+}
