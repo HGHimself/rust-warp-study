@@ -90,6 +90,22 @@ pub struct NewLinkApi {
     pub name: String,
 }
 
+#[derive(Deserialize)]
+pub struct AddLinkToPageApi {
+    pub page_id: i32,
+    pub name: String,
+    pub url: String,
+}
+
+impl Into<NewLinkApi> for AddLinkToPageApi {
+    fn into(self) -> NewLinkApi {
+        NewLinkApi {
+            name: self.name,
+            url: self.url,
+        }
+    }
+}
+
 #[derive(Insertable)]
 #[diesel(table_name = link)]
 pub struct NewLink {

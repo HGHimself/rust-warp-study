@@ -1,33 +1,50 @@
+<script>
+    let newLinkIsOpen = false
+    const toggleNewLinkOpen = () => {
+        const formEl = document.getElementById("addNewLink")
+        if (!formEl) {
+            throw Error("Element id::addNewLink doesn't exist!")
+        }
+        newLinkIsOpen = !newLinkIsOpen
+        formEl.setAttribute('class', newLinkIsOpen ? "show" : "hide")
+
+        const label = document.getElementById("addNewLinkLabel")
+        if (!label) {
+            throw Error("Element id::addNewLinkLabel doesn't exist!")
+        }
+        label.setAttribute('class', newLinkIsOpen ? "open-accordion" : "closed-accordion")
+    }
+</script>
 <div class="crumbs"><a href="/user">{user.username}</a> | <a href="/page/{page.id}">{page.name}</a></div>
-<div class="page-authenticated">
-    <div class="page-title green-neubrutalist-card text-card">
-        <h3>{page.name}</h3>
-        <p>{page.description}</p>
+<div class="page">
+    <div class="page-authenticated">
+        <div class="page-title green-neubrutalist-card text-card">
+            <h3>{page.name}</h3>
+            <p>{page.description}</p>
+            <h5 onClick="toggleNewLinkOpen()" id="addNewLinkLabel" class="closed-accordion">Add new link</h5>
+            <form id="addNewLink" action='/page/{page.id}/link' method='POST' autocomplete="off" class="hide">
+                <fieldset>
+                    <legend>Link details</legend>
+                    <div>
+                        <label>
+                            <span>Name:</span>
+                            <input type='name' name='name' required max=48 placeholder="ex. Google" />
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            <span>URL:</span>
+                            <input type='url' name='url' required max=2048 placeholder="ex. https://google.com" />
+                        </label>
+                    </div>
+                    <div class="error">{error}</div>
+                    <button type='submit' class="button-link">Create</button>
+                </fieldset>
+            </form>
+        </div>
     </div>
-    <section class="new-link neubrutalist-card">
-        <h6>Add new link</h6>
-        <form action='/page/{page.id}/link' method='POST' autocomplete="off">
-            <fieldset>
-                <legend>Link details</legend>
-                <div>
-                    <label>
-                        <span>Name:</span>
-                        <input type='name' name='name' required max=48 placeholder="ex. Google" />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        <span>URL:</span>
-                        <input type='url' name='url' required max=2048 placeholder="ex. https://google.com" />
-                    </label>
-                </div>
-                <div class="error">{error}</div>
-                <button type='submit' class="button-link">Create</button>
-            </fieldset>
-        </form>
-    </section>
+    <ul class="links authenticated">
+        {links}
+    </ul>
 </div>
-<ul class="links authenticated">
-    {links}
-</ul>
 {background}

@@ -232,7 +232,7 @@ async fn remove_page(
     Ok((context, expanded_user))
 }
 
-async fn insert_new_link(
+pub async fn insert_new_link(
     context: Context,
     expanded_user: models::user::ExpandedUser,
     expanded_page: models::page::ExpandedPage,

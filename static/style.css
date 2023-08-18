@@ -33,6 +33,11 @@ body {
   padding-right: 1rem;
 }
 
+.page {
+  margin-left: 3rem;
+  max-width: 900px;
+}
+
 .error {
   font-weight: bold;
 }
@@ -210,7 +215,6 @@ ul {
 }
 
 form {
-  margin: auto;
   width: min-content;
   padding: 0.5rem;
   border-radius: 5px;
@@ -239,7 +243,7 @@ fieldset legend {
   font-size: 1.25rem;
 }
 
-fieldset input {
+fieldset input, fieldset select {
   border: none;
   background-color: inherit;
   border-bottom: 1.5px dashed currentColor;
@@ -426,6 +430,7 @@ ul.actions li {
 }
 
 .text-card {
+  margin: auto;
   height: min-content;
   max-width: 700px;
 }
@@ -457,13 +462,6 @@ ul.actions li {
   background-color: #EE352E;
   color: white;
   border-radius: 100px;
-}
-
-.page-authenticated {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  margin-bottom: 3rem;
-  grid-gap: 4rem;
 }
 
 .new-link, .create-page {
@@ -499,9 +497,8 @@ li .link a.bookmark {
 ul.links, ul.authenticated  {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  justify-items: center;
   row-gap: 3.5rem;
-  margin-left: 3rem;
-  max-width: 900px;
 }
 
 .single-form {
@@ -516,8 +513,7 @@ ul.page-list {
   grid-gap: 3rem;
   row-gap: 5rem;
   align-items: start;
-  max-width: 900px;
-  margin-left: 3rem;
+  justify-items: center;
 }
 
 /* ul.page-list li.page-list-item {
@@ -579,3 +575,35 @@ ul.page-list li span {
   margin-top: 3rem;
 }
 
+
+.show {
+  display: block;
+}
+
+.hide {
+  display: none;
+}
+
+.closed-accordion, .open-accordion {
+  cursor: pointer;
+}
+
+.closed-accordion::after {
+  content: " ▼";
+  font-size: 1rem;
+}
+
+.open-accordion::after {
+  content: " ▲";
+  font-size: 1rem;
+}
+
+.text-card form {
+  margin: auto;
+  margin-top: 1rem;
+}
+
+.text-card ::placeholder {
+  color: currentColor;
+  opacity: 0.8;
+}

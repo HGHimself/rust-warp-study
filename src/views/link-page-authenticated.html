@@ -1,4 +1,4 @@
-<div class="crumbs"><a href="/link/{link.id}">{link.url}</a></div>
+<div class="crumbs"><a href="/user">{user.username}</a> | <a href="/link/{link.id}">{link.url}</a></div>
 <div class="page">
     <div class="yellow-neubrutalist-card margin-bottom text-card">
         <h4 class="page-title">Explore new groups</h4>
@@ -17,6 +17,7 @@
             </div>
         </div>
         <p>These are all the groups that contain this link. Find out what else people have been bookmarking.</p>
+        {add-to-my-page-form}
     </div>
     <ul class="page-list">
         {pages}

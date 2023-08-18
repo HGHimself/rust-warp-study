@@ -1,0 +1,39 @@
+<script>
+    let newLinkIsOpen = false
+    const toggleNewLinkOpen = () => {
+        const formEl = document.getElementById("addNewLink")
+        if (!formEl) {
+            throw Error("Element id::addNewLink doesn't exist!")
+        }
+        newLinkIsOpen = !newLinkIsOpen
+        formEl.setAttribute('class', newLinkIsOpen ? "show" : "hide")
+
+        const label = document.getElementById("addNewLinkLabel")
+        if (!label) {
+            throw Error("Element id::addNewLinkLabel doesn't exist!")
+        }
+        label.setAttribute('class', newLinkIsOpen ? "open-accordion" : "closed-accordion")
+    }
+</script>
+<h5 onClick="toggleNewLinkOpen()" id="addNewLinkLabel" class="closed-accordion">Add this link to my page</h5>
+<form id="addNewLink" id="addNewLink" action='/link/{link.id}/page' method='POST' autocomplete="off" class="hide">
+    <fieldset>
+        <legend>Link details</legend>
+        <div>
+            <label>
+                <span>Name:</span>
+                <input type='name' name='name' required max=48 placeholder="ex. Google" />
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>Page:</span>
+                <select name="page_id">
+                    {options}
+                </select>
+            </label>
+        </div>
+        <input type="hidden" name="url" value="{link.url}" />
+        <button type='submit' class="button-link">Create</button>
+    </fieldset>
+</form>

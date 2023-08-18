@@ -1,36 +1,53 @@
+<script>
+    let newLinkIsOpen = false
+    const toggleNewGroupOpen = () => {
+        const formEl = document.getElementById("addNewGroup")
+        if (!formEl) {
+            throw Error("Element id::addNewGroup doesn't exist!")
+        }
+        newLinkIsOpen = !newLinkIsOpen
+        formEl.setAttribute('class', newLinkIsOpen ? "show" : "hide")
+
+        const label = document.getElementById("addNewGroupLabel")
+        if (!label) {
+            throw Error("Element id::addNewGroupLabel doesn't exist!")
+        }
+        label.setAttribute('class', newLinkIsOpen ? "open-accordion" : "closed-accordion")
+    }
+</script>
 <div class="crumbs">
     <a href="/user">{user.username}</a>
 </div>
-<div class="page-authenticated">
-    <div class="page-title blue-neubrutalist-card text-card">
-        <h3>Your groups</h3>
-        <p>Use these groups to organize your bookmarked links. A group will be visible to users who have bookmarked the same
-            link as you.</p>
+<div class="page">
+    <div class="page-authenticated">
+        <div class="page-title blue-neubrutalist-card text-card">
+            <h3>Your groups</h3>
+            <p>Use these groups to organize your bookmarked links. A group will be visible to users who have bookmarked
+                the same link as you.</p>
+            <h5 onClick="toggleNewGroupOpen()" id="addNewGroupLabel" class="closed-accordion">Create new group</h5>
+            <form id="addNewGroup" action='/page' method='POST' autocomplete="off" class="hide">
+                <fieldset>
+                    <legend>Group details</legend>
+                    <div>
+                        <label>
+                            <span>Name:</span>
+                            <input type='text' name='name' required max=64 placeholder="ex. My Fav Sites" />
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            <span>Description:</span>
+                            <input type='text' name='description' required max=248 placeholder="ex. Check these out" />
+                        </label>
+                    </div>
+                    <div class="error">{error}</div>
+                    <button type='submit' class="button-link">Create</button>
+                </fieldset>
+            </form>
+        </div>
     </div>
-    <section class="create-page neubrutalist-card">
-        <h6>Create new group</h6>
-        <form action='/page' method='POST' autocomplete="off">
-            <fieldset>
-                <legend>Group details</legend>
-                <div>
-                    <label>
-                        <span>Name:</span>
-                        <input type='text' name='name' required max=64 placeholder="ex. My Fav Sites" />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        <span>Description:</span>
-                        <input type='text' name='description' required max=248 placeholder="ex. Check these out" />
-                    </label>
-                </div>
-                <div class="error">{error}</div>
-                <button type='submit' class="button-link">Create</button>
-            </fieldset>
-        </form>
-    </section>
+    <ul class="page-list authenticated">
+        {pages}
+    </ul>
 </div>
-<ul class="page-list authenticated">
-    {pages}
-</ul>
 {background}

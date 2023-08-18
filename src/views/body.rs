@@ -76,7 +76,7 @@ pub fn header_authenticated(user: &models::user::User) -> String {
         <div>
             <h1 class='title'><a href='/' class='normalized'>digitheque.io</a></h1>
             <ul class='actions'>
-                <li><a href='/link/random' class='button-link'>Random link</a></li>
+                <li><a href='/link/random'>Random link</a></li>
                 <li><a href='/user'>{}</a></li>
                 <li><a href='/user/logout'>Logout</a></li>
             </ul>

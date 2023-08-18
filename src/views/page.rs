@@ -73,3 +73,7 @@ pub fn list_item(page: &models::page::Page) -> String {
 pub fn list_item_authenticated(page: &models::page::Page) -> String {
     page.inject_values(include_str!("page-list-item-authenticated.html"))
 }
+
+pub fn option_item(page: &models::page::Page) -> String {
+    page.inject_values(include_str!("page-option-item.html"))
+}
